@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+    UI Full Test Suite — Selenium / TestNG (non-BDD)
+    Run with:  mvn test -P ui-tests
+               mvn test -Dsuite.file=testng-suites/ui-full.xml
+
+    Add your UI test classes below as you create them.
+    Example class: com.cinereserve.ui.tests.auth.LoginTest
+-->
+<suite name="CineReserve UI Full Suite" verbose="1" parallel="methods" thread-count="1">
+
+    <parameter name="env"     value="local"/>
+    <parameter name="browser" value="chrome"/>
+
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!--
+        ─── Authentication UI Tests ─────────────────────────────────────────
+        Uncomment and update once you create the test classes:
+
+        <test name="Auth UI Tests">
+            <classes>
+                <class name="com.cinereserve.ui.tests.auth.LoginTest"/>
+                <class name="com.cinereserve.ui.tests.auth.RegisterTest"/>
+            </classes>
+        </test>
+    -->
+
+    <!--
+        ─── Movies UI Tests ─────────────────────────────────────────────────
+        <test name="Movies UI Tests">
+            <classes>
+                <class name="com.cinereserve.ui.tests.movies.BrowseMoviesTest"/>
+                <class name="com.cinereserve.ui.tests.movies.MovieDetailTest"/>
+            </classes>
+        </test>
+    -->
+
+    <!--
+        ─── Reservation UI Tests ────────────────────────────────────────────
+        <test name="Reservation UI Tests">
+            <classes>
+                <class name="com.cinereserve.ui.tests.reservation.BookSeatTest"/>
+            </classes>
+        </test>
+    -->
+
+</suite>
+

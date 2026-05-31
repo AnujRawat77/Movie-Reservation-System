@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!--
+    BDD Cucumber Suite — Selenium + Cucumber 7 + Allure
+    Run with:  mvn test -P bdd-tests
+
+    To filter by tag at runtime:
+        mvn test -P bdd-tests -Dcucumber.filter.tags="@smoke"
+        mvn test -P bdd-tests -Dcucumber.filter.tags="@regression and not @wip"
+-->
+<suite name="CineReserve BDD Cucumber Suite" verbose="1" parallel="none" thread-count="1">
+
+    <parameter name="env"     value="local"/>
+    <parameter name="browser" value="chrome"/>
+
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!--
+        CucumberUIRunner bridges Cucumber ↔ TestNG.
+        It picks up all .feature files from src/test/resources/features/ui/
+        and uses step definitions from com.cinereserve.ui.steps + hooks from
+        com.cinereserve.ui.hooks.
+    -->
+    <test name="BDD UI Scenarios">
+        <classes>
+            <class name="com.cinereserve.ui.runners.CucumberUIRunner"/>
+        </classes>
+    </test>
+
+</suite>
+

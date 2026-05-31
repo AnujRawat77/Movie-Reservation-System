@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.cinereserve</groupId>
-    <artifactId>api-tests</artifactId>
+    <artifactId>automation-tests</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>CineReserve API Automation Tests</name>
-    <description>Comprehensive REST API Test Suite for Movie Reservation System</description>
+    <name>CineReserve Automation Tests (API + UI)</name>
+    <description>Unified test suite — REST API tests (RestAssured/TestNG) and UI tests (Selenium/Cucumber BDD)</description>
 
     <properties>
         <java.version>25</java.version>
@@ -18,22 +18,44 @@
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Dependency Versions -->
+
+        <!-- ── Core Test Framework ───────────────────────────────────────── -->
         <testng.version>7.10.2</testng.version>
+        <surefire.version>3.3.0</surefire.version>
+        <aspectj.version>1.9.22</aspectj.version>
+
+        <!-- ── API Testing ──────────────────────────────────────────────── -->
         <rest-assured.version>5.5.0</rest-assured.version>
+        <json-path.version>2.9.0</json-path.version>
+
+        <!-- ── UI Testing (Selenium + WebDriverManager) ─────────────────── -->
+        <selenium.version>4.27.0</selenium.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
+
+        <!-- ── BDD (Cucumber 7) ──────────────────────────────────────────── -->
+        <cucumber.version>7.20.1</cucumber.version>
+
+        <!-- ── Reporting (Allure) ───────────────────────────────────────── -->
         <allure.version>2.29.0</allure.version>
         <allure-maven.version>2.13.0</allure-maven.version>
+
+        <!-- ── Data / Utilities ─────────────────────────────────────────── -->
         <jackson.version>2.17.2</jackson.version>
         <lombok.version>1.18.34</lombok.version>
         <javafaker.version>1.0.2</javafaker.version>
         <log4j.version>2.23.1</log4j.version>
         <assertj.version>3.26.3</assertj.version>
-        <json-path.version>2.9.0</json-path.version>
-        <surefire.version>3.3.0</surefire.version>
-        <aspectj.version>1.9.22</aspectj.version>
+
+        <!-- ── Default test suite (overridable via Maven profiles) ──────── -->
+        <suite.file>testng-suites/full.xml</suite.file>
     </properties>
 
     <dependencies>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             CORE TEST FRAMEWORK
+             ════════════════════════════════════════════════════════════════ -->
+
         <!-- TestNG -->
         <dependency>
             <groupId>org.testng</groupId>
@@ -41,7 +63,10 @@
             <version>${testng.version}</version>
         </dependency>
 
-        <!-- RestAssured Core -->
+        <!-- ════════════════════════════════════════════════════════════════
+             API TESTING — RestAssured
+             ════════════════════════════════════════════════════════════════ -->
+
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -58,20 +83,85 @@
             <version>${rest-assured.version}</version>
         </dependency>
 
-        <!-- Allure TestNG -->
+        <!-- ════════════════════════════════════════════════════════════════
+             UI TESTING — Selenium WebDriver + WebDriverManager
+             ════════════════════════════════════════════════════════════════ -->
+
+        <!-- Selenium WebDriver (Chrome, Firefox, Edge …) -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+
+        <!-- WebDriverManager — auto-downloads browser drivers (no manual setup) -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             BDD — Cucumber 7 (integrates with both TestNG and Selenium)
+             ════════════════════════════════════════════════════════════════ -->
+
+        <!-- Cucumber Java step-definition annotations -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+
+        <!-- Cucumber TestNG runner bridge -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+
+        <!-- PicoContainer — lightweight DI to share state between step-def classes -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             REPORTING — Allure (API, UI, and Cucumber integrations)
+             ════════════════════════════════════════════════════════════════ -->
+
+        <!-- Allure + TestNG listener -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
             <version>${allure.version}</version>
         </dependency>
-        <!-- Allure RestAssured Integration -->
+
+        <!-- Allure + RestAssured request/response logging -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-rest-assured</artifactId>
             <version>${allure.version}</version>
         </dependency>
 
-        <!-- Jackson Databind (JSON) -->
+        <!-- Allure + Cucumber 7 BDD reporting -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- Allure + Selenium (screenshots, page-source attachments) -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-selenide</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             DATA / SERIALISATION
+             ════════════════════════════════════════════════════════════════ -->
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -83,7 +173,12 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Apache Commons Lang -->
+        <!-- ════════════════════════════════════════════════════════════════
+             UTILITIES
+             ════════════════════════════════════════════════════════════════ -->
+
+
+        <!-- JavaFaker — realistic test data generation -->
         <dependency>
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
@@ -107,7 +202,7 @@
             <version>${log4j.version}</version>
         </dependency>
 
-        <!-- AssertJ (fluent assertions) -->
+        <!-- AssertJ — fluent assertions for both API and UI -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
@@ -135,16 +230,18 @@
             <version>3.14.0</version>
         </dependency>
 
-        <!-- AspectJ (required for Allure) -->
+        <!-- AspectJ (required by Allure Java agent) -->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
             <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -158,14 +255,21 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin -->
+            <!--
+                Surefire Plugin
+                Suite file is controlled by ${suite.file} — default = testng-suites/full.xml
+                Override via Maven profile:  mvn test -P ui-tests
+                                             mvn test -P bdd-tests
+                                             mvn test -P smoke
+                                             mvn test -P regression
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>testng-suites/full.xml</suiteXmlFile>
+                        <suiteXmlFile>${suite.file}</suiteXmlFile>
                     </suiteXmlFiles>
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
@@ -177,7 +281,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Allure Maven Plugin -->
+            <!-- Allure Maven Plugin — generates HTML report from allure-results -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
@@ -187,7 +291,71 @@
                     <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
+
+    <!--
+        ══════════════════════════════════════════════════════════════════════
+        MAVEN PROFILES — choose which suite to run
+        ══════════════════════════════════════════════════════════════════════
+        Usage:
+          mvn test                     → API tests (default)
+          mvn test -P api-tests        → API tests (explicit)
+          mvn test -P smoke            → Smoke tests
+          mvn test -P regression       → Regression tests
+          mvn test -P ui-tests         → Selenium UI tests
+          mvn test -P bdd-tests        → Cucumber BDD tests
+          mvn test -P full-suite       → All API + UI + BDD tests
+    -->
+    <profiles>
+
+        <!-- API Tests (default) -->
+        <profile>
+            <id>api-tests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <suite.file>testng-suites/full.xml</suite.file>
+            </properties>
+        </profile>
+
+        <!-- Smoke Tests -->
+        <profile>
+            <id>smoke</id>
+            <properties>
+                <suite.file>testng-suites/smoke.xml</suite.file>
+            </properties>
+        </profile>
+
+        <!-- Regression Tests -->
+        <profile>
+            <id>regression</id>
+            <properties>
+                <suite.file>testng-suites/regression.xml</suite.file>
+            </properties>
+        </profile>
+
+        <!-- UI Tests (Selenium / TestNG) -->
+        <profile>
+            <id>ui-tests</id>
+            <properties>
+                <suite.file>testng-suites/ui-full.xml</suite.file>
+            </properties>
+        </profile>
+
+        <!-- BDD Tests (Cucumber + Selenium) -->
+        <profile>
+            <id>bdd-tests</id>
+            <properties>
+                <suite.file>testng-suites/bdd.xml</suite.file>
+            </properties>
+        </profile>
+
+    </profiles>
+
 </project>
+
+
 
