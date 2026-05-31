@@ -1,0 +1,32 @@
+<div>POST to http://localhost:8080/api/showtimes</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;hallId&quot;: 1,
+    &quot;price&quot;: 192.0,
+    &quot;movieId&quot;: 1,
+    &quot;startTime&quot;: &quot;2026-08-10T16:40:00&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer invalid.jwt.token</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:8080/api/showtimes&#39; -H &#39;Authorization: Bearer invalid.jwt.token&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;hallId&quot;: 1,
+    &quot;price&quot;: 192.0,
+    &quot;movieId&quot;: 1,
+    &quot;startTime&quot;: &quot;2026-08-10T16:40:00&quot;
+}&#39;
+    </div>
+

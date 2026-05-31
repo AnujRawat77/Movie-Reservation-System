@@ -1,0 +1,49 @@
+<div>POST to http://localhost:8080/api/movies</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 105,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Qui at commodi debitis et.&quot;,
+    &quot;description&quot;: &quot;Molestiae corrupti doloribus voluptates. Mollitia quidem et voluptatum. Vitae eum rem autem sit.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Aut praesentium est ipsam aut nulla ex. Quisquam facilis et ipsa expedita est. Itaque dolores vel labore aliquam nostrum. Suscipit maiores ab amet. Ut voluptatem aut est et aut corrupti ut.&quot;,
+    &quot;title&quot;: &quot;The House of Mirth 9400&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:8080/api/movies&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 105,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Qui at commodi debitis et.&quot;,
+    &quot;description&quot;: &quot;Molestiae corrupti doloribus voluptates. Mollitia quidem et voluptatum. Vitae eum rem autem sit.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Aut praesentium est ipsam aut nulla ex. Quisquam facilis et ipsa expedita est. Itaque dolores vel labore aliquam nostrum. Suscipit maiores ab amet. Ut voluptatem aut est et aut corrupti ut.&quot;,
+    &quot;title&quot;: &quot;The House of Mirth 9400&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

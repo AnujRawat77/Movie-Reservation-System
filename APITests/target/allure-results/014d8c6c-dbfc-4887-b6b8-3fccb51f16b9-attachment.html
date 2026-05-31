@@ -1,0 +1,49 @@
+<div>PUT to http://localhost:8080/api/movies/1</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 135,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 5.5,
+    &quot;tagline&quot;: &quot;Cum aspernatur quod mollitia debitis corrupti error tempore veniam.&quot;,
+    &quot;description&quot;: &quot;Et vitae cumque sit nam est non non. Corrupti sed at deleniti autem et ut. Et qui aut.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Illum ipsa et est repudiandae illum. Aut dolor perferendis quas rerum. Repudiandae voluptatem nobis.&quot;,
+    &quot;title&quot;: &quot;The Golden Apples of the Sun 6100&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/1&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 135,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 5.5,
+    &quot;tagline&quot;: &quot;Cum aspernatur quod mollitia debitis corrupti error tempore veniam.&quot;,
+    &quot;description&quot;: &quot;Et vitae cumque sit nam est non non. Corrupti sed at deleniti autem et ut. Et qui aut.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Illum ipsa et est repudiandae illum. Aut dolor perferendis quas rerum. Repudiandae voluptatem nobis.&quot;,
+    &quot;title&quot;: &quot;The Golden Apples of the Sun 6100&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

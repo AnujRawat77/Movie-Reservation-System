@@ -1,0 +1,50 @@
+<div>POST to http://localhost:8080/api/movies</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 111,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 6.7,
+    &quot;tagline&quot;: &quot;Consectetur autem error dignissimos eum non.&quot;,
+    &quot;description&quot;: &quot;Eligendi dolores saepe impedit temporibus veniam minima pariatur. Quam veniam ut ipsam molestias impedit. Ex nulla omnis in earum dolorem fuga. Dolorem qui vel odio totam voluptas provident. Vel rerum velit quis.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Id qui quas voluptas nostrum velit. Et in alias quo nesciunt. Ea libero amet.&quot;,
+    &quot;title&quot;: &quot;The Painted Veil 9400&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer invalid.jwt.token</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:8080/api/movies&#39; -H &#39;Authorization: Bearer invalid.jwt.token&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 111,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 6.7,
+    &quot;tagline&quot;: &quot;Consectetur autem error dignissimos eum non.&quot;,
+    &quot;description&quot;: &quot;Eligendi dolores saepe impedit temporibus veniam minima pariatur. Quam veniam ut ipsam molestias impedit. Ex nulla omnis in earum dolorem fuga. Dolorem qui vel odio totam voluptas provident. Vel rerum velit quis.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Id qui quas voluptas nostrum velit. Et in alias quo nesciunt. Ea libero amet.&quot;,
+    &quot;title&quot;: &quot;The Painted Veil 9400&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

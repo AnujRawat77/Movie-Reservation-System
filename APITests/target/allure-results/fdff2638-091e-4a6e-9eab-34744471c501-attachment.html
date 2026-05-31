@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/1</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 105,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 6.4,
+    &quot;tagline&quot;: &quot;Quae accusantium ut harum dolores impedit.&quot;,
+    &quot;description&quot;: &quot;Est doloremque asperiores voluptatem. Quis eligendi voluptatem suscipit optio vero neque. Sequi debitis omnis aperiam distinctio quibusdam nihil in.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Iure accusantium voluptas porro dignissimos porro et. Aspernatur veniam consequatur vel voluptatem vitae aspernatur velit. Et voluptate quisquam suscipit nihil placeat nostrum ut. Beatae dignissimos consectetur. Aliquid consectetur a.&quot;,
+    &quot;title&quot;: &quot;In a Glass Darkly 8600&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer invalid.jwt.token</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/1&#39; -H &#39;Authorization: Bearer invalid.jwt.token&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 105,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 6.4,
+    &quot;tagline&quot;: &quot;Quae accusantium ut harum dolores impedit.&quot;,
+    &quot;description&quot;: &quot;Est doloremque asperiores voluptatem. Quis eligendi voluptatem suscipit optio vero neque. Sequi debitis omnis aperiam distinctio quibusdam nihil in.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Iure accusantium voluptas porro dignissimos porro et. Aspernatur veniam consequatur vel voluptatem vitae aspernatur velit. Et voluptate quisquam suscipit nihil placeat nostrum ut. Beatae dignissimos consectetur. Aliquid consectetur a.&quot;,
+    &quot;title&quot;: &quot;In a Glass Darkly 8600&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

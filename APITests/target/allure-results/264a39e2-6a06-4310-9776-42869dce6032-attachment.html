@@ -1,0 +1,50 @@
+<div>POST to http://localhost:8080/api/movies</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 135,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2022,
+    &quot;rating&quot;: 8.5,
+    &quot;tagline&quot;: &quot;Ipsam doloribus adipisci neque quaerat a dolores.&quot;,
+    &quot;description&quot;: &quot;Est repellendus et repellat laborum. Iure nostrum nihil ut iste. Magni amet accusantium. Odio omnis rerum qui sed et exercitationem placeat.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Qui quisquam ad aut amet fugiat omnis. Suscipit et iusto. Quam suscipit et molestiae dolorem nostrum. Sunt magni odio est vero ratione. Voluptatem tenetur odit ea.&quot;,
+    &quot;title&quot;: &quot;Wildfire at Midnight 1900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcwMzEsImV4cCI6MTc4MDI5MzQzMX0.HQKBO2gJmAFPOKvHl2HOl49RzplahOu1l50pjzvRQ4n8_ucffMqP77LLk-BCp51s488JgSkZuSI2SnN1iJ4MUg</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:8080/api/movies&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcwMzEsImV4cCI6MTc4MDI5MzQzMX0.HQKBO2gJmAFPOKvHl2HOl49RzplahOu1l50pjzvRQ4n8_ucffMqP77LLk-BCp51s488JgSkZuSI2SnN1iJ4MUg&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 135,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2022,
+    &quot;rating&quot;: 8.5,
+    &quot;tagline&quot;: &quot;Ipsam doloribus adipisci neque quaerat a dolores.&quot;,
+    &quot;description&quot;: &quot;Est repellendus et repellat laborum. Iure nostrum nihil ut iste. Magni amet accusantium. Odio omnis rerum qui sed et exercitationem placeat.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Qui quisquam ad aut amet fugiat omnis. Suscipit et iusto. Quam suscipit et molestiae dolorem nostrum. Sunt magni odio est vero ratione. Voluptatem tenetur odit ea.&quot;,
+    &quot;title&quot;: &quot;Wildfire at Midnight 1900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

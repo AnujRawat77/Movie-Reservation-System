@@ -1,0 +1,17 @@
+com\cinereserve\api\utils\TestDataBuilder.class
+com\cinereserve\api\tests\reports\ReportTests.class
+com\cinereserve\api\base\BaseTest.class
+com\cinereserve\api\tests\halls\HallTests.class
+com\cinereserve\api\tests\auth\RegisterTests.class
+com\cinereserve\api\tests\movies\GetMoviesTests.class
+com\cinereserve\api\tests\auth\LoginTests.class
+com\cinereserve\api\tests\genres\GenreTests.class
+com\cinereserve\api\utils\AuthUtil.class
+com\cinereserve\api\config\ApiConfig.class
+com\cinereserve\api\tests\showtimes\ShowtimeTests.class
+com\cinereserve\api\tests\movies\MovieCrudTests.class
+com\cinereserve\api\tests\security\SecurityTests.class
+com\cinereserve\api\tests\reservations\ReservationTests.class
+com\cinereserve\api\config\ApiConfig$Endpoints.class
+com\cinereserve\api\tests\users\UserTests.class
+com\cinereserve\api\tests\integration\EndToEndTests.class

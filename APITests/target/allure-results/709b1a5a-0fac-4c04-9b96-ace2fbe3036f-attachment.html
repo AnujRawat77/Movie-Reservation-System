@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/36</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 106,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 5.5,
+    &quot;tagline&quot;: &quot;Vel sint ipsum nobis qui minima dolorum.&quot;,
+    &quot;description&quot;: &quot;Occaecati rem maiores. Omnis inventore sunt laudantium sit sit. Aliquam dolorem consequatur sit. Iusto qui eveniet et enim non.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Dolores distinctio laboriosam molestiae quisquam sed. Sed adipisci consequatur. Ullam nostrum officiis nulla et eos et numquam. Qui assumenda animi.&quot;,
+    &quot;title&quot;: null,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMjQ3NjgsImV4cCI6MTc4MDMxMTE2OH0.O8tjsYVrzmr3daOaNEVo5QCAyIMdKBpjfbZPP8j5yrWSZ1TFm-DsgsTKxp2eCHEIUjPrcZSICL5R_Kiwgl1k_A</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/36&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMjQ3NjgsImV4cCI6MTc4MDMxMTE2OH0.O8tjsYVrzmr3daOaNEVo5QCAyIMdKBpjfbZPP8j5yrWSZ1TFm-DsgsTKxp2eCHEIUjPrcZSICL5R_Kiwgl1k_A&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 106,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 5.5,
+    &quot;tagline&quot;: &quot;Vel sint ipsum nobis qui minima dolorum.&quot;,
+    &quot;description&quot;: &quot;Occaecati rem maiores. Omnis inventore sunt laudantium sit sit. Aliquam dolorem consequatur sit. Iusto qui eveniet et enim non.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Dolores distinctio laboriosam molestiae quisquam sed. Sed adipisci consequatur. Ullam nostrum officiis nulla et eos et numquam. Qui assumenda animi.&quot;,
+    &quot;title&quot;: null,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

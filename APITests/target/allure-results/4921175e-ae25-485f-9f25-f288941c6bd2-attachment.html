@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/1</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 119,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 9.0,
+    &quot;tagline&quot;: &quot;Ratione suscipit officiis officiis autem.&quot;,
+    &quot;description&quot;: &quot;Illum eius aut voluptate qui minima. Fuga rerum perspiciatis quas voluptate ducimus perferendis. Provident aut delectus pariatur. Omnis repellat vel. Voluptatem sit error tenetur ratione quo dolor ipsa.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Libero praesentium qui quo. Laboriosam ea libero voluptas atque explicabo. A excepturi nam quae ut quae. Nisi quo eos quidem ea laboriosam at harum. Voluptatem non asperiores non incidunt.&quot;,
+    &quot;title&quot;: &quot;The Moving Toyshop 8000&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer invalid.jwt.token</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/1&#39; -H &#39;Authorization: Bearer invalid.jwt.token&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 119,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 9.0,
+    &quot;tagline&quot;: &quot;Ratione suscipit officiis officiis autem.&quot;,
+    &quot;description&quot;: &quot;Illum eius aut voluptate qui minima. Fuga rerum perspiciatis quas voluptate ducimus perferendis. Provident aut delectus pariatur. Omnis repellat vel. Voluptatem sit error tenetur ratione quo dolor ipsa.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Libero praesentium qui quo. Laboriosam ea libero voluptas atque explicabo. A excepturi nam quae ut quae. Nisi quo eos quidem ea laboriosam at harum. Voluptatem non asperiores non incidunt.&quot;,
+    &quot;title&quot;: &quot;The Moving Toyshop 8000&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/50</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 110,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 7.4,
+    &quot;tagline&quot;: &quot;Natus quibusdam minima fuga officia nobis eos quam doloremque inventore.&quot;,
+    &quot;description&quot;: &quot;Doloremque nulla quis autem porro. Rerum rerum harum dolor aut omnis. Rerum magnam quis quo vel aspernatur repudiandae aliquid. Vel iure at. Ut necessitatibus quaerat nisi non accusamus maxime eveniet.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Porro ratione voluptatem ab nemo. Quod quia modi earum ullam sit excepturi nemo. Aliquam aut est inventore. Omnis vitae ipsa soluta atque aliquid voluptas. Omnis et ipsum tempore.&quot;,
+    &quot;title&quot;: &quot;Updated 1780206229854&quot;,
+    &quot;genreIds&quot;: [
+        
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDYyMDIsImV4cCI6MTc4MDI5MjYwMn0.DcHiskhQt2RcAcPr1WZEH1nzpwJW2jeZTriUGkw2bToKyyu5VothezspKN6Vk9181fFknT7PKzomhb-avobBWw</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/50&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDYyMDIsImV4cCI6MTc4MDI5MjYwMn0.DcHiskhQt2RcAcPr1WZEH1nzpwJW2jeZTriUGkw2bToKyyu5VothezspKN6Vk9181fFknT7PKzomhb-avobBWw&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 110,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2021,
+    &quot;rating&quot;: 7.4,
+    &quot;tagline&quot;: &quot;Natus quibusdam minima fuga officia nobis eos quam doloremque inventore.&quot;,
+    &quot;description&quot;: &quot;Doloremque nulla quis autem porro. Rerum rerum harum dolor aut omnis. Rerum magnam quis quo vel aspernatur repudiandae aliquid. Vel iure at. Ut necessitatibus quaerat nisi non accusamus maxime eveniet.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Porro ratione voluptatem ab nemo. Quod quia modi earum ullam sit excepturi nemo. Aliquam aut est inventore. Omnis vitae ipsa soluta atque aliquid voluptas. Omnis et ipsum tempore.&quot;,
+    &quot;title&quot;: &quot;Updated 1780206229854&quot;,
+    &quot;genreIds&quot;: [
+        
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

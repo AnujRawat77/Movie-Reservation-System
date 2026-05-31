@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="CineReserve Smoke Suite" verbose="1">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+    <test name="Smoke Tests">
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.cinereserve.api.tests.auth.RegisterTests">
+                <methods><include name="registerWithValidData_returns200AndToken"/></methods>
+            </class>
+            <class name="com.cinereserve.api.tests.auth.LoginTests">
+                <methods><include name="adminLoginWithCorrectCredentials_returns200"/></methods>
+            </class>
+            <class name="com.cinereserve.api.tests.movies.GetMoviesTests">
+                <methods><include name="getAllMovies_returns200"/></methods>
+            </class>
+            <class name="com.cinereserve.api.tests.genres.GenreTests">
+                <methods><include name="getAllGenres_returns200"/></methods>
+            </class>
+            <class name="com.cinereserve.api.tests.integration.EndToEndTests">
+                <methods><include name="seededAdminUser_canLoginAndAccessSystem"/></methods>
+            </class>
+        </classes>
+    </test>
+</suite>
+

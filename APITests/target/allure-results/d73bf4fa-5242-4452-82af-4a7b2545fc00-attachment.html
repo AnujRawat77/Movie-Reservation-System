@@ -1,0 +1,26 @@
+<div>PATCH to http://localhost:8080/api/users/1/role</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;role&quot;: &quot;ADMIN&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA2MjAzNTA1QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDYyMDMsImV4cCI6MTc4MDI5MjYwM30.UU02SRWskaEIl0jYeffKneE4C9GCyivt4vvp43aXqooeEc9MRkOlbhpmPX4LNqyNQjCgWnUqQhczJfU5Eey7dA</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PATCH &#39;http://localhost:8080/api/users/1/role&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA2MjAzNTA1QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDYyMDMsImV4cCI6MTc4MDI5MjYwM30.UU02SRWskaEIl0jYeffKneE4C9GCyivt4vvp43aXqooeEc9MRkOlbhpmPX4LNqyNQjCgWnUqQhczJfU5Eey7dA&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;role&quot;: &quot;ADMIN&quot;
+}&#39;
+    </div>
+

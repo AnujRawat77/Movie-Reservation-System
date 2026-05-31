@@ -1,0 +1,50 @@
+<div>POST to http://localhost:8080/api/movies</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 107,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2022,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Quas voluptas est soluta non vel eum.&quot;,
+    &quot;description&quot;: &quot;Facilis aut nemo corrupti rerum. Dolorem commodi velit veritatis doloremque consectetur nulla. Consequatur dolorem aspernatur. Non aut nihil. Voluptatibus consequatur rem earum dicta dolor.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Qui mollitia odio ipsum fugit enim sunt. Voluptatem sed quaerat adipisci recusandae inventore laudantium. Dicta accusamus animi cupiditate fuga. Animi nisi qui tempore omnis ipsam nihil iure.&quot;,
+    &quot;title&quot;: &quot;Surprised by Joy 8900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA3MDMxODQ3QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDcwMzEsImV4cCI6MTc4MDI5MzQzMX0.vGUu1A2uBwLjQzJRJ7KMqTen-2CTgGkYNRcPvWB4up_3QINkfiNxBiM6JP57oN3goS1rZ2wgPzvPXabmVf4tRQ</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://localhost:8080/api/movies&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA3MDMxODQ3QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDcwMzEsImV4cCI6MTc4MDI5MzQzMX0.vGUu1A2uBwLjQzJRJ7KMqTen-2CTgGkYNRcPvWB4up_3QINkfiNxBiM6JP57oN3goS1rZ2wgPzvPXabmVf4tRQ&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 107,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2022,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Quas voluptas est soluta non vel eum.&quot;,
+    &quot;description&quot;: &quot;Facilis aut nemo corrupti rerum. Dolorem commodi velit veritatis doloremque consectetur nulla. Consequatur dolorem aspernatur. Non aut nihil. Voluptatibus consequatur rem earum dicta dolor.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Qui mollitia odio ipsum fugit enim sunt. Voluptatem sed quaerat adipisci recusandae inventore laudantium. Dicta accusamus animi cupiditate fuga. Animi nisi qui tempore omnis ipsam nihil iure.&quot;,
+    &quot;title&quot;: &quot;Surprised by Joy 8900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

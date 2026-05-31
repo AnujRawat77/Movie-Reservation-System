@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/85</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 120,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 6.6,
+    &quot;tagline&quot;: &quot;Nam corrupti eum dolores unde expedita est qui ipsa.&quot;,
+    &quot;description&quot;: &quot;Accusamus velit sit aut eos modi est unde. Autem aut quod sit temporibus velit quasi. Quos et explicabo occaecati temporibus et odit nostrum. Magnam veritatis voluptate et aut.&quot;,
+    &quot;language&quot;: &quot;French&quot;,
+    &quot;synopsis&quot;: &quot;Laudantium et quia eum quam tenetur nihil cumque. Voluptate perferendis nostrum consequuntur dolores. Laboriosam doloribus numquam numquam.&quot;,
+    &quot;title&quot;: &quot;Françoise Sagan 900&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcxMjgsImV4cCI6MTc4MDI5MzUyOH0.t9KriX9c_kbM2tQkAiWwudol0InrXcZazSabwqKtJ7OlCPhACPGTofw_jSkWSy-cp2rc9ohjneLOkk9ebhyApQ</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/85&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcxMjgsImV4cCI6MTc4MDI5MzUyOH0.t9KriX9c_kbM2tQkAiWwudol0InrXcZazSabwqKtJ7OlCPhACPGTofw_jSkWSy-cp2rc9ohjneLOkk9ebhyApQ&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 120,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 6.6,
+    &quot;tagline&quot;: &quot;Nam corrupti eum dolores unde expedita est qui ipsa.&quot;,
+    &quot;description&quot;: &quot;Accusamus velit sit aut eos modi est unde. Autem aut quod sit temporibus velit quasi. Quos et explicabo occaecati temporibus et odit nostrum. Magnam veritatis voluptate et aut.&quot;,
+    &quot;language&quot;: &quot;French&quot;,
+    &quot;synopsis&quot;: &quot;Laudantium et quia eum quam tenetur nihil cumque. Voluptate perferendis nostrum consequuntur dolores. Laboriosam doloribus numquam numquam.&quot;,
+    &quot;title&quot;: &quot;Françoise Sagan 900&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

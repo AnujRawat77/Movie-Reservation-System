@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/1</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 137,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2025,
+    &quot;rating&quot;: 5.9,
+    &quot;tagline&quot;: &quot;Quas est aliquid illum perspiciatis nisi inventore.&quot;,
+    &quot;description&quot;: &quot;Iusto culpa doloremque hic nostrum nobis possimus. Enim qui est est commodi quam. Et enim quaerat dolore. Illo explicabo quia nulla eius in magnam molestiae.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Et excepturi minima facere pariatur sit consequuntur delectus. Atque atque repellendus consequatur vitae dolore. Provident enim eveniet rerum.&quot;,
+    &quot;title&quot;: &quot;The Far-Distant Oxus 8200&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA3MTI5MTQ0QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDcxMjksImV4cCI6MTc4MDI5MzUyOX0.7LMsCQKvKSnpdfqnBxFF7xjKcUOHiZJXv0yu_dUN0hITW-l2igyfDL1-szfbNoj0_F34OoA-Nc7frB4dLJTzbA</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/1&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlcl8xNzgwMjA3MTI5MTQ0QGNpbmVyZXNlcnZlLXRlc3QuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3ODAyMDcxMjksImV4cCI6MTc4MDI5MzUyOX0.7LMsCQKvKSnpdfqnBxFF7xjKcUOHiZJXv0yu_dUN0hITW-l2igyfDL1-szfbNoj0_F34OoA-Nc7frB4dLJTzbA&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 137,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2025,
+    &quot;rating&quot;: 5.9,
+    &quot;tagline&quot;: &quot;Quas est aliquid illum perspiciatis nisi inventore.&quot;,
+    &quot;description&quot;: &quot;Iusto culpa doloremque hic nostrum nobis possimus. Enim qui est est commodi quam. Et enim quaerat dolore. Illo explicabo quia nulla eius in magnam molestiae.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Et excepturi minima facere pariatur sit consequuntur delectus. Atque atque repellendus consequatur vitae dolore. Provident enim eveniet rerum.&quot;,
+    &quot;title&quot;: &quot;The Far-Distant Oxus 8200&quot;,
+    &quot;genreIds&quot;: [
+        28
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

@@ -1,0 +1,50 @@
+<div>PUT to http://localhost:8080/api/movies/1</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 121,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Soluta est et explicabo inventore nobis.&quot;,
+    &quot;description&quot;: &quot;Fugiat aut laudantium possimus eos et. Necessitatibus sit deserunt recusandae dolor. Sint qui quae. Ab enim veritatis quisquam maiores quis. Qui ut est quo blanditiis minus in.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Eligendi pariatur consequatur consequatur reprehenderit. Suscipit et non enim quas exercitationem ab. Possimus quia maxime qui velit. Expedita quibusdam harum ut beatae voluptate vero quas. Natus quis eos sed.&quot;,
+    &quot;title&quot;: &quot;The Golden Apples of the Sun 5900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer invalid.jwt.token</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/1&#39; -H &#39;Authorization: Bearer invalid.jwt.token&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 121,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2023,
+    &quot;rating&quot;: 8.3,
+    &quot;tagline&quot;: &quot;Soluta est et explicabo inventore nobis.&quot;,
+    &quot;description&quot;: &quot;Fugiat aut laudantium possimus eos et. Necessitatibus sit deserunt recusandae dolor. Sint qui quae. Ab enim veritatis quisquam maiores quis. Qui ut est quo blanditiis minus in.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Eligendi pariatur consequatur consequatur reprehenderit. Suscipit et non enim quas exercitationem ab. Possimus quia maxime qui velit. Expedita quibusdam harum ut beatae voluptate vero quas. Natus quis eos sed.&quot;,
+    &quot;title&quot;: &quot;The Golden Apples of the Sun 5900&quot;,
+    &quot;genreIds&quot;: [
+        1
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

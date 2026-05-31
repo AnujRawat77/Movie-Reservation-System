@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="CineReserve Regression Suite" verbose="1" parallel="none">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+    <test name="Auth Regression">
+        <classes>
+            <class name="com.cinereserve.api.tests.auth.RegisterTests"/>
+            <class name="com.cinereserve.api.tests.auth.LoginTests"/>
+        </classes>
+    </test>
+    <test name="Core API Regression">
+        <classes>
+            <class name="com.cinereserve.api.tests.movies.GetMoviesTests"/>
+            <class name="com.cinereserve.api.tests.movies.MovieCrudTests"/>
+            <class name="com.cinereserve.api.tests.genres.GenreTests"/>
+            <class name="com.cinereserve.api.tests.halls.HallTests"/>
+            <class name="com.cinereserve.api.tests.showtimes.ShowtimeTests"/>
+            <class name="com.cinereserve.api.tests.reservations.ReservationTests"/>
+            <class name="com.cinereserve.api.tests.users.UserTests"/>
+            <class name="com.cinereserve.api.tests.reports.ReportTests"/>
+        </classes>
+    </test>
+    <test name="Security Regression">
+        <classes>
+            <class name="com.cinereserve.api.tests.security.SecurityTests"/>
+        </classes>
+    </test>
+</suite>
+

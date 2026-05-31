@@ -1,0 +1,52 @@
+<div>PUT to http://localhost:8080/api/movies/63</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{
+    &quot;durationMinutes&quot;: 149,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 6.9,
+    &quot;tagline&quot;: &quot;Maxime quo accusantium mollitia voluptatem fugit unde modi repellat.&quot;,
+    &quot;description&quot;: &quot;Omnis occaecati consectetur veritatis asperiores quae nam. Modi enim ea est. Sed esse eaque quae.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Doloremque perferendis quae nulla voluptas optio. Corrupti est magni. Et harum distinctio doloribus. Similique laudantium dolorum quia sint et.&quot;,
+    &quot;title&quot;: &quot;Nectar in a Sieve 5900&quot;,
+    &quot;genreIds&quot;: [
+        28,
+        27
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcxMjgsImV4cCI6MTc4MDI5MzUyOH0.t9KriX9c_kbM2tQkAiWwudol0InrXcZazSabwqKtJ7OlCPhACPGTofw_jSkWSy-cp2rc9ohjneLOkk9ebhyApQ</div>
+            <div>Accept: application/json, application/javascript, text/javascript, text/json</div>
+            <div>Content-Type: application/json</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PUT &#39;http://localhost:8080/api/movies/63&#39; -H &#39;Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBjaW5lcmVzZXJ2ZS5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODAyMDcxMjgsImV4cCI6MTc4MDI5MzUyOH0.t9KriX9c_kbM2tQkAiWwudol0InrXcZazSabwqKtJ7OlCPhACPGTofw_jSkWSy-cp2rc9ohjneLOkk9ebhyApQ&#39; -H &#39;Accept: application/json, application/javascript, text/javascript, text/json&#39; -H &#39;Content-Type: application/json&#39; -d &#39;{
+    &quot;durationMinutes&quot;: 149,
+    &quot;posterUrl&quot;: &quot;/images/poster-1.jpg&quot;,
+    &quot;year&quot;: 2020,
+    &quot;rating&quot;: 6.9,
+    &quot;tagline&quot;: &quot;Maxime quo accusantium mollitia voluptatem fugit unde modi repellat.&quot;,
+    &quot;description&quot;: &quot;Omnis occaecati consectetur veritatis asperiores quae nam. Modi enim ea est. Sed esse eaque quae.&quot;,
+    &quot;language&quot;: &quot;English&quot;,
+    &quot;synopsis&quot;: &quot;Doloremque perferendis quae nulla voluptas optio. Corrupti est magni. Et harum distinctio doloribus. Similique laudantium dolorum quia sint et.&quot;,
+    &quot;title&quot;: &quot;Nectar in a Sieve 5900&quot;,
+    &quot;genreIds&quot;: [
+        28,
+        27
+    ],
+    &quot;status&quot;: &quot;now&quot;
+}&#39;
+    </div>
+

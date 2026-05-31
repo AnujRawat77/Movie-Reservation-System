@@ -1,0 +1,69 @@
+﻿# ===========================
+# Movie Reservation System
+# ===========================
+# ===== Frontend (Node/React) =====
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.development.local
+Frontend/.env.test.local
+Frontend/.env.production.local
+Frontend/dist-ssr/
+Frontend/coverage/
+# ===== Backend (Maven/Java) =====
+MovieReservationSystem/target/
+MovieReservationSystem/*.class
+MovieReservationSystem/.mvn/wrapper/maven-wrapper.jar
+!MovieReservationSystem/.mvn/wrapper/maven-wrapper.properties
+# H2 database files (if persisted)
+*.mv.db
+*.trace.db
+# ===== IDE Files =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+# ===== OS Files =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V*/
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+# ===== Logs =====
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+# ===== Build outputs =====
+*.jar
+!MovieReservationSystem/mvnw
+!MovieReservationSystem/mvnw.cmd
+build/
+out/
+# ===== Test outputs =====
+surefire-reports/
+*.class
+# ===== Secrets & Sensitive =====
+.env
+.env.*
+!.env.example
+application-prod.properties
+application-secret.properties
+# ===== Bun specific =====
+Frontend/.bun/
+# ===== TypeScript =====
+*.tsbuildinfo
+# ===== Claude AI temp =====
+.claude/
+.codemie/
