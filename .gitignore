@@ -13,6 +13,7 @@ Frontend/dist-ssr/
 Frontend/coverage/
 # ===== Backend (Maven/Java) =====
 MovieReservationSystem/target/
+APITests/target/
 MovieReservationSystem/*.class
 MovieReservationSystem/.mvn/wrapper/maven-wrapper.jar
 !MovieReservationSystem/.mvn/wrapper/maven-wrapper.properties
