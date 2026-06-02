@@ -4,12 +4,15 @@
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
+
+    <!-- ── API Regression ────────────────────────────────────────────── -->
     <test name="Auth Regression">
         <classes>
             <class name="com.cinereserve.api.tests.auth.RegisterTests"/>
             <class name="com.cinereserve.api.tests.auth.LoginTests"/>
         </classes>
     </test>
+
     <test name="Core API Regression">
         <classes>
             <class name="com.cinereserve.api.tests.movies.GetMoviesTests"/>
@@ -22,10 +25,36 @@
             <class name="com.cinereserve.api.tests.reports.ReportTests"/>
         </classes>
     </test>
+
     <test name="Security Regression">
         <classes>
             <class name="com.cinereserve.api.tests.security.SecurityTests"/>
         </classes>
     </test>
-</suite>
 
+    <test name="Integration Regression">
+        <classes>
+            <class name="com.cinereserve.api.tests.integration.EndToEndTests"/>
+        </classes>
+    </test>
+
+    <!-- ── UI Regression ─────────────────────────────────────────────── -->
+    <test name="Login UI Regression">
+        <classes>
+            <class name="com.cinereserve.ui.tests.LoginUITest"/>
+        </classes>
+    </test>
+
+    <test name="Movies UI Regression">
+        <classes>
+            <class name="com.cinereserve.ui.tests.MoviesUITest"/>
+        </classes>
+    </test>
+
+    <test name="Admin UI Regression">
+        <classes>
+            <class name="com.cinereserve.ui.tests.AdminUITest"/>
+        </classes>
+    </test>
+
+</suite>

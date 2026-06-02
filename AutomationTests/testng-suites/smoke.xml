@@ -4,12 +4,9 @@
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
-    <test name="Smoke Tests">
-        <groups>
-            <run>
-                <include name="smoke"/>
-            </run>
-        </groups>
+
+    <!-- ── API Smoke ───────────────────────────────────────────────────── -->
+    <test name="API Smoke Tests">
         <classes>
             <class name="com.cinereserve.api.tests.auth.RegisterTests">
                 <methods><include name="registerWithValidData_returns200AndToken"/></methods>
@@ -28,5 +25,22 @@
             </class>
         </classes>
     </test>
-</suite>
 
+    <!-- ── UI Smoke ────────────────────────────────────────────────────── -->
+    <test name="UI Smoke Tests">
+        <classes>
+            <class name="com.cinereserve.ui.tests.LoginUITest">
+                <methods>
+                    <include name="loginPage_loadsSuccessfully"/>
+                    <include name="adminLogin_redirectsFromLoginPage"/>
+                </methods>
+            </class>
+            <class name="com.cinereserve.ui.tests.MoviesUITest">
+                <methods>
+                    <include name="homePage_loadsSuccessfully"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+
+</suite>
