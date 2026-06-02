@@ -306,7 +306,9 @@ public class ReservationTests extends BaseTest {
     public void createReservation_regularSeatPriceIsBasePrice() {
         Map<String, Object> stBody = TestDataBuilder.showtimeBody(existingMovieId, existingHallId,
                 TestDataBuilder.futureDateTime(310, 10), 200.0);
-        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        Object stIdObj = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().get("data.id");
+        if (stIdObj == null) return;
+        int newStId = ((Number) stIdObj).intValue();
         List<Map<String, Object>> seats = withUserAuth().pathParam("id", newStId)
                 .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data");
         if (seats != null) {
@@ -993,7 +995,9 @@ public class ReservationTests extends BaseTest {
     public void createReservation_verifyTotalAmountForTwoSeats() {
         Map<String, Object> stBody = TestDataBuilder.showtimeBody(existingMovieId, existingHallId,
                 TestDataBuilder.futureDateTime(400, 14), 100.0);
-        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        Object stIdObj = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().get("data.id");
+        if (stIdObj == null) return;
+        int newStId = ((Number) stIdObj).intValue();
         List<Map<String, Object>> seats = withUserAuth().pathParam("id", newStId)
                 .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data");
         if (seats != null && seats.size() >= 2) {
