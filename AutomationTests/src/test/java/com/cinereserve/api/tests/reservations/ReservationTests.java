@@ -1068,5 +1068,177 @@ public class ReservationTests extends BaseTest {
             }
         }
     }
+
+    // ─── RECEIPT DOWNLOAD FIELDS ──────────────────────────────────────────────
+    // These tests guard the fields that the frontend receipt download relies on.
+    // GET /api/reservations/{id} must return: id, movieTitle, hallName,
+    // showDate, showTime, seats (rowLabel + seatNumber), totalAmount, status.
+
+    @Test(priority = 81) @Story("Get Reservation By ID") @Severity(SeverityLevel.CRITICAL)
+    public void getReservationById_containsReceiptFields() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            withUserAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                    .then().statusCode(200)
+                    .body("data.id",           notNullValue())
+                    .body("data.movieTitle",   notNullValue())
+                    .body("data.hallName",     notNullValue())
+                    .body("data.showDate",     notNullValue())
+                    .body("data.showTime",     notNullValue())
+                    .body("data.seats",        notNullValue())
+                    .body("data.totalAmount",  notNullValue())
+                    .body("data.status",       notNullValue());
+        }
+    }
+
+    @Test(priority = 82) @Story("Get Reservation By ID") @Severity(SeverityLevel.NORMAL)
+    public void getReservationById_seatsContainRowLabelAndSeatNumber() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            Response res = withUserAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID);
+            res.then().statusCode(200);
+            List<Map<String, Object>> seatList = res.jsonPath().getList("data.seats");
+            assertThat(seatList).isNotEmpty();
+            seatList.forEach(seat -> {
+                assertThat(seat).containsKey("rowLabel");
+                assertThat(seat).containsKey("seatNumber");
+            });
+        }
+    }
+
+    @Test(priority = 83) @Story("Get Reservation By ID") @Severity(SeverityLevel.NORMAL)
+    public void getReservationById_statusIsConfirmedAfterCreation() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            withUserAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                    .then().statusCode(200)
+                    .body("data.status", equalTo("CONFIRMED"));
+        }
+    }
+
+    // ─── Booking Detail Page API Tests (priorities 84-88) ───────────────────────
+
+    @Test(priority = 84) @Story("Booking Detail Page") @Severity(SeverityLevel.BLOCKER)
+    @Description("GET /api/reservations/{id} returns all fields required for the booking detail page")
+    public void getReservationById_detailPage_allFieldsPresent() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            withUserAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                    .then().statusCode(200)
+                    .body("data.id",           notNullValue())
+                    .body("data.movieTitle",   notNullValue())
+                    .body("data.hallName",     notNullValue())
+                    .body("data.showDate",     notNullValue())
+                    .body("data.showTime",     notNullValue())
+                    .body("data.seats",        notNullValue())
+                    .body("data.totalAmount",  notNullValue())
+                    .body("data.status",       notNullValue())
+                    .body("data.userName",     notNullValue())
+                    .body("data.createdAt",    notNullValue());
+        }
+    }
+
+    @Test(priority = 85) @Story("Booking Detail Page") @Severity(SeverityLevel.CRITICAL)
+    @Description("Each seat in the reservation detail contains seatType of REGULAR or PREMIUM")
+    public void getReservationById_seatContainsSeatType() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            Response res = withUserAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID);
+            res.then().statusCode(200);
+            List<Map<String, Object>> seatList = res.jsonPath().getList("data.seats");
+            assertThat(seatList).isNotEmpty();
+            seatList.forEach(seat -> {
+                assertThat(seat).containsKey("seatType");
+                assertThat(seat.get("seatType").toString()).isIn("REGULAR", "PREMIUM");
+            });
+        }
+    }
+
+    @Test(priority = 86) @Story("Booking Detail Page") @Severity(SeverityLevel.CRITICAL)
+    @Description("Unauthenticated request to GET /api/reservations/{id} returns 401 or 403")
+    public void getReservationById_unauthenticated_returns401or403() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            int status = withNoAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                    .then().extract().statusCode();
+            assertThat(status).isIn(401, 403);
+        }
+    }
+
+    @Test(priority = 87) @Story("Booking Detail Page") @Severity(SeverityLevel.NORMAL)
+    @Description("Admin can access any user's reservation via GET /api/reservations/{id}")
+    public void getReservationById_adminCanAccessAnyReservation() {
+        Map<String, Object> stBody = TestDataBuilder.validShowtimeBody(existingMovieId, existingHallId);
+        int newStId = withAdminAuth().body(stBody).post(ApiConfig.Endpoints.SHOWTIMES).jsonPath().getInt("data.id");
+        List<Integer> seats = withUserAuth().pathParam("id", newStId)
+                .get(ApiConfig.Endpoints.SHOWTIME_SEATS).jsonPath().getList("data.id");
+        if (seats != null && !seats.isEmpty()) {
+            String reservationId = withUserAuth()
+                    .body(TestDataBuilder.reservationBody(newStId, List.of(seats.get(0))))
+                    .post(ApiConfig.Endpoints.RESERVATIONS).jsonPath().getString("data.id");
+
+            withAdminAuth().pathParam("id", reservationId)
+                    .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                    .then().statusCode(200)
+                    .body("data.id", equalTo(reservationId));
+        }
+    }
+
+    @Test(priority = 88) @Story("Booking Detail Page") @Severity(SeverityLevel.NORMAL)
+    @Description("GET /api/reservations/{id} with an invalid UUID returns 400 or 404")
+    public void getReservationById_invalidId_returns400or404() {
+        int status = withUserAuth().pathParam("id", "not-a-valid-uuid")
+                .get(ApiConfig.Endpoints.RESERVATION_BY_ID)
+                .then().extract().statusCode();
+        assertThat(status).isIn(400, 404);
+    }
 }
 
