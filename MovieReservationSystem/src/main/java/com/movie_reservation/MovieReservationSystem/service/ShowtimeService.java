@@ -30,7 +30,8 @@ public class ShowtimeService {
     private final ReservationRepository reservationRepository;
 
     public List<ShowtimeResponse> getShowtimesForMovie(Long movieId, String date) {
-        List<Showtime> showtimes = showtimeRepository.findByMovieIdAndStatus(movieId, "SCHEDULED");
+        List<Showtime> showtimes = showtimeRepository.findByMovieIdAndStatusAndStartTimeAfter(
+                movieId, "SCHEDULED", LocalDateTime.now());
 
         if (StringUtils.hasText(date)) {
             showtimes = showtimes.stream()
