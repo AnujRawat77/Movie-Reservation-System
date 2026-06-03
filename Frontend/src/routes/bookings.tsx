@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Calendar, Clock, MapPin, Ticket, XCircle } from "lucide-react";
+import { Calendar, Clock, Eye, MapPin, Ticket, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { ROUTES } from "@/constants/routes";
 import { STRINGS } from "@/constants/strings";
@@ -19,6 +19,13 @@ export const Route = createFileRoute("/bookings")({
 });
 
 function MyBookingsPage() {
+  const childMatches = useChildMatches();
+  if (childMatches.length > 0) return <Outlet />;
+
+  return <BookingsList />;
+}
+
+function BookingsList() {
   const { isAuthenticated, hydrated } = useAuth();
   const navigate = useNavigate();
   const [list, setList] = useState<ReservationDto[]>([]);
@@ -150,6 +157,12 @@ function MyBookingsPage() {
                 <div className="font-display text-2xl text-gradient-gold">
                   ${Number(r.totalAmount).toFixed(2)}
                 </div>
+                <Link
+                  to={ROUTES.bookingDetail(r.id)}
+                  className="inline-flex items-center gap-1 text-xs text-accent transition-colors hover:underline"
+                >
+                  <Eye className="h-3.5 w-3.5" /> View Details
+                </Link>
                 {r.status === "CONFIRMED" && (
                   <button
                     onClick={() => cancel(r.id)}

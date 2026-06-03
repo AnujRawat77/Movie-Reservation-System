@@ -5,6 +5,7 @@ export const ROUTES = {
   booking: (showtimeId: string) => `/booking/${showtimeId}`,
   bookingSuccess: (id: string) => `/booking/success/${id}`,
   myBookings: "/bookings",
+  bookingDetail: (id: string) => `/bookings/${id}`,
   login: "/login",
   signup: "/signup",
   profile: "/profile",

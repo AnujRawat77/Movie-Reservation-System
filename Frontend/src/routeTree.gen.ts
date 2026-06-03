@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MoviesIndexRouteImport } from './routes/movies.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as MoviesIdRouteImport } from './routes/movies.$id'
+import { Route as BookingsIdRouteImport } from './routes/bookings.$id'
 import { Route as BookingShowtimeIdRouteImport } from './routes/booking.$showtimeId'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminShowtimesRouteImport } from './routes/admin.showtimes'
@@ -73,6 +74,11 @@ const MoviesIdRoute = MoviesIdRouteImport.update({
   path: '/movies/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingsIdRoute = BookingsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => BookingsRoute,
+} as any)
 const BookingShowtimeIdRoute = BookingShowtimeIdRouteImport.update({
   id: '/booking/$showtimeId',
   path: '/booking/$showtimeId',
@@ -122,7 +128,7 @@ const BookingSuccessIdRoute = BookingSuccessIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/bookings': typeof BookingsRoute
+  '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/admin/showtimes': typeof AdminShowtimesRoute
   '/admin/users': typeof AdminUsersRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/bookings/$id': typeof BookingsIdRoute
   '/movies/$id': typeof MoviesIdRoute
   '/admin/': typeof AdminIndexRoute
   '/movies/': typeof MoviesIndexRoute
@@ -141,7 +148,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/bookings': typeof BookingsRoute
+  '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/admin/showtimes': typeof AdminShowtimesRoute
   '/admin/users': typeof AdminUsersRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/bookings/$id': typeof BookingsIdRoute
   '/movies/$id': typeof MoviesIdRoute
   '/admin': typeof AdminIndexRoute
   '/movies': typeof MoviesIndexRoute
@@ -162,7 +170,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/bookings': typeof BookingsRoute
+  '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/admin/showtimes': typeof AdminShowtimesRoute
   '/admin/users': typeof AdminUsersRoute
   '/booking/$showtimeId': typeof BookingShowtimeIdRoute
+  '/bookings/$id': typeof BookingsIdRoute
   '/movies/$id': typeof MoviesIdRoute
   '/admin/': typeof AdminIndexRoute
   '/movies/': typeof MoviesIndexRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/admin/showtimes'
     | '/admin/users'
     | '/booking/$showtimeId'
+    | '/bookings/$id'
     | '/movies/$id'
     | '/admin/'
     | '/movies/'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/admin/showtimes'
     | '/admin/users'
     | '/booking/$showtimeId'
+    | '/bookings/$id'
     | '/movies/$id'
     | '/admin'
     | '/movies'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/admin/showtimes'
     | '/admin/users'
     | '/booking/$showtimeId'
+    | '/bookings/$id'
     | '/movies/$id'
     | '/admin/'
     | '/movies/'
@@ -244,7 +256,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  BookingsRoute: typeof BookingsRoute
+  BookingsRoute: typeof BookingsRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
@@ -318,6 +330,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/movies/$id'
       preLoaderRoute: typeof MoviesIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/bookings/$id': {
+      id: '/bookings/$id'
+      path: '/$id'
+      fullPath: '/bookings/$id'
+      preLoaderRoute: typeof BookingsIdRouteImport
+      parentRoute: typeof BookingsRoute
     }
     '/booking/$showtimeId': {
       id: '/booking/$showtimeId'
@@ -409,10 +428,22 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface BookingsRouteChildren {
+  BookingsIdRoute: typeof BookingsIdRoute
+}
+
+const BookingsRouteChildren: BookingsRouteChildren = {
+  BookingsIdRoute: BookingsIdRoute,
+}
+
+const BookingsRouteWithChildren = BookingsRoute._addFileChildren(
+  BookingsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  BookingsRoute: BookingsRoute,
+  BookingsRoute: BookingsRouteWithChildren,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
