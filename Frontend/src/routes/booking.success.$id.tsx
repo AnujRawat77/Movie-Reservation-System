@@ -13,6 +13,56 @@ export const Route = createFileRoute("/booking/success/$id")({
   component: Success,
 });
 
+function downloadReceipt(reservation: ReservationDto) {
+  const ref = `#${reservation.id.slice(-6).toUpperCase()}`;
+  const seatList = reservation.seats
+    .map((s) => `${s.rowLabel}${s.seatNumber}`)
+    .join(", ");
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>CineReserve Receipt ${ref}</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:24px;border:1px solid #ddd;}
+    h1{font-size:24px;margin-bottom:4px;}
+    .sub{color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;}
+    hr{border:none;border-top:1px dashed #ccc;margin:16px 0;}
+    table{width:100%;border-collapse:collapse;font-size:14px;}
+    td{padding:6px 0;} td:first-child{color:#888;width:130px;}
+    .total{font-size:20px;font-weight:bold;margin-top:12px;}
+    .footer{text-align:center;color:#aaa;font-size:11px;margin-top:24px;}
+  </style>
+</head>
+<body>
+  <h1>CineReserve</h1>
+  <div class="sub">Booking Receipt</div>
+  <hr />
+  <table>
+    <tr><td>Movie</td><td>${reservation.movieTitle}</td></tr>
+    <tr><td>Hall</td><td>${reservation.hallName}</td></tr>
+    <tr><td>Date</td><td>${reservation.showDate}</td></tr>
+    <tr><td>Time</td><td>${reservation.showTime}</td></tr>
+    <tr><td>Seats</td><td>${seatList}</td></tr>
+    <tr><td>Booking Ref</td><td>${ref}</td></tr>
+    <tr><td>Status</td><td>${reservation.status}</td></tr>
+  </table>
+  <hr />
+  <div class="total">Total: $${Number(reservation.totalAmount).toFixed(2)}</div>
+  <div class="footer">Thank you for booking with CineReserve!</div>
+</body>
+</html>`;
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `receipt-${reservation.id.slice(-6).toUpperCase()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function Success() {
   const { id } = Route.useParams();
   const [reservation, setReservation] = useState<ReservationDto | null>(null);
@@ -129,8 +179,13 @@ function Success() {
         <HammerButton variant="secondary" size="md">
           <Calendar className="h-4 w-4" /> Add to Calendar
         </HammerButton>
-        <HammerButton variant="secondary" size="md">
-          <Download className="h-4 w-4" /> Download
+        <HammerButton
+          variant="secondary"
+          size="md"
+          onClick={() => reservation && downloadReceipt(reservation)}
+          disabled={!reservation}
+        >
+          <Download className="h-4 w-4" /> Download Receipt
         </HammerButton>
         <Link to={ROUTES.myBookings}>
           <HammerButton variant="gold" size="md">

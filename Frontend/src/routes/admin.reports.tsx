@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,18 @@ import {
 } from "@/lib/api";
 
 export const Route = createFileRoute("/admin/reports")({ component: AdminReports });
+
+function triggerDownload(content: string, filename: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 function AdminReports() {
   return (
@@ -67,6 +80,23 @@ function RevenueTab() {
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" placeholder="From" />
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-40" placeholder="To" />
           <Button onClick={load} disabled={loading}>{loading ? "Loading…" : "Fetch"}</Button>
+          {data && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [
+                  ["Movie", "Revenue"],
+                  ...(data.byMovie ?? []).map((r) => [r.movieTitle, Number(r.revenue).toFixed(2)]),
+                  ["", ""],
+                  ["Total Revenue", Number(data.totalRevenue).toFixed(2)],
+                ];
+                triggerDownload(rows.map((r) => r.join(",")).join("\n"), "revenue-report.csv", "text/csv");
+              }}
+            >
+              <Download className="mr-1 h-4 w-4" /> Download CSV
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -120,6 +150,27 @@ function CapacityTab() {
         <div className="flex gap-2 pt-2">
           <Input value={showtimeId} onChange={(e) => setShowtimeId(e.target.value)} className="w-40" placeholder="Showtime ID" />
           <Button onClick={load} disabled={loading}>{loading ? "Loading…" : "Check"}</Button>
+          {data && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [
+                  ["Field", "Value"],
+                  ["Movie", data.movieTitle],
+                  ["Hall", data.hallName],
+                  ["Start Time", data.startTime],
+                  ["Total Seats", String(data.totalSeats)],
+                  ["Booked Seats", String(data.bookedSeats)],
+                  ["Available Seats", String(data.availableSeats)],
+                  ["Occupancy %", data.occupancyPercent.toFixed(1)],
+                ];
+                triggerDownload(rows.map((r) => r.join(",")).join("\n"), `capacity-showtime-${data.showtimeId}.csv`, "text/csv");
+              }}
+            >
+              <Download className="mr-1 h-4 w-4" /> Download CSV
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -155,8 +206,23 @@ function TopMoviesTab() {
 
   return (
     <Card className="border-border bg-card/60">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-start justify-between">
         <CardTitle className="font-display text-xl">Top Grossing Movies</CardTitle>
+        {data.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows = [
+                ["Rank", "Movie", "Revenue"],
+                ...data.map((m, i) => [String(i + 1), m.title, Number(m.revenue).toFixed(2)]),
+              ];
+              triggerDownload(rows.map((r) => r.join(",")).join("\n"), "top-movies-report.csv", "text/csv");
+            }}
+          >
+            <Download className="mr-1 h-4 w-4" /> Download CSV
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         {loading ? (
