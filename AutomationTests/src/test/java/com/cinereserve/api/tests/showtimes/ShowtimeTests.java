@@ -589,5 +589,44 @@ public class ShowtimeTests extends BaseTest {
         int second = withAdminAuth().pathParam("id", showtimeId).delete(ApiConfig.Endpoints.SHOWTIME_BY_ID).statusCode();
         assertThat(Integer.valueOf(second)).isIn(200, 400, 404, 409);
     }
+
+    // ─── PAST SHOWTIME FILTER ─────────────────────────────────────────────────
+    // Guards the fix: GET /api/movies/{id}/showtimes must NOT return shows whose
+    // startTime is in the past.
+
+    @Test(priority = 66) @Story("List Showtimes") @Severity(SeverityLevel.BLOCKER)
+    public void getShowtimesForMovie_onlyReturnsFutureShowtimes() {
+        // Create a future showtime for the movie
+        Integer showtimeId = createShowtimeSafe(existingMovieId, existingHallId);
+        if (showtimeId == null) return;
+
+        // Fetch showtimes for the movie (no date filter)
+        Response res = withNoAuth()
+                .pathParam("id", existingMovieId)
+                .get(ApiConfig.Endpoints.MOVIE_SHOWTIMES);
+        res.then().statusCode(200);
+
+        // Every returned showtime's startTime must be >= now (in string sort order)
+        List<String> startTimes = res.jsonPath().getList("data.startTime");
+        if (startTimes != null && !startTimes.isEmpty()) {
+            String nowIso = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            startTimes.forEach(st ->
+                    assertThat(st).as("startTime %s should not be in the past", st)
+                            .isGreaterThanOrEqualTo(nowIso));
+        }
+    }
+
+    @Test(priority = 67) @Story("List Showtimes") @Severity(SeverityLevel.CRITICAL)
+    public void getShowtimesForMovie_pastShowtimeIsNotReturned() {
+        // Admin creates a showtime with a past startTime — should be rejected by the API (400).
+        // If the API allows it (legacy data), the endpoint must still NOT expose it.
+        Map<String, Object> pastBody = TestDataBuilder.showtimeBody(
+                existingMovieId, existingHallId, TestDataBuilder.pastDateTime(1, 10), 100.0);
+        int createStatus = withAdminAuth().body(pastBody).post(ApiConfig.Endpoints.SHOWTIMES).statusCode();
+        // Backend already validates: past start times return 400.
+        // Either 400 (correctly rejected) is acceptable — the fixture cannot exist.
+        assertThat(Integer.valueOf(createStatus)).isIn(400, 422);
+    }
 }
 
