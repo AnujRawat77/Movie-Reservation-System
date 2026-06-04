@@ -26,6 +26,10 @@ public class GlobalExceptionHandler {
         switch (ex.getErrorCode()) {
             case "CONFLICT": status = HttpStatus.CONFLICT; break;
             case "UNAUTHORIZED": status = HttpStatus.FORBIDDEN; break;
+            case "HOLD_NOT_OWNED": status = HttpStatus.FORBIDDEN; break;
+            case "SEAT_ALREADY_HELD": status = HttpStatus.CONFLICT; break;
+            case "SEAT_ALREADY_BOOKED": status = HttpStatus.CONFLICT; break;
+            case "HOLD_EXPIRED": status = HttpStatus.GONE; break;
             default: status = HttpStatus.BAD_REQUEST;
         }
         return buildErrorResponse(ex.getErrorCode(), ex.getMessage(), status);

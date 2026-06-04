@@ -10,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,77 +25,17 @@ public class ReservationService {
     private final ShowtimeRepository showtimeRepository;
     private final SeatRepository seatRepository;
     private final UserRepository userRepository;
+    private final SeatHoldService seatHoldService;
 
+    /**
+     * Legacy direct-book endpoint — internally routes through the hold system so all
+     * bookings benefit from the same DB-level concurrency guarantees (create hold →
+     * immediately confirm). This keeps the API contract unchanged while making it race-safe.
+     */
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, String userEmail) {
-        // 1. Validate showtime exists and is SCHEDULED
-        Showtime showtime = showtimeRepository.findById(request.getShowtimeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Showtime", request.getShowtimeId()));
-
-        if (!"SCHEDULED".equals(showtime.getStatus())) {
-            throw new BusinessException("SHOWTIME_NOT_AVAILABLE", "Showtime is not available for booking");
-        }
-
-        // 2. Validate showtime is in the future
-        if (!showtime.getStartTime().isAfter(LocalDateTime.now())) {
-            throw new BusinessException("SHOWTIME_PAST", "Cannot book a past showtime");
-        }
-
-        // 3. For each seat: check it's not already booked
-        List<Seat> seats = new ArrayList<>();
-        for (Long seatId : request.getSeatIds()) {
-            Seat seat = seatRepository.findById(seatId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Seat", seatId));
-
-            boolean alreadyBooked = reservationSeatRepository
-                    .existsBySeatIdAndShowtimeIdAndReservationStatus(
-                            seatId, request.getShowtimeId(), "CONFIRMED");
-
-            if (alreadyBooked) {
-                throw new BusinessException("SEAT_ALREADY_BOOKED",
-                        "Seat " + seat.getRowLabel() + seat.getSeatNumber() + " is already booked");
-            }
-
-            seats.add(seat);
-        }
-
-        // 4. Get the user
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userEmail));
-
-        // 5. Calculate total amount (PREMIUM seats get 1.5x multiplier)
-        BigDecimal totalAmount = seats.stream()
-                .map(seat -> {
-                    BigDecimal seatPrice = showtime.getPrice();
-                    if ("PREMIUM".equals(seat.getSeatType())) {
-                        seatPrice = seatPrice.multiply(new BigDecimal("1.5"));
-                    }
-                    return seatPrice;
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // 6. Create Reservation
-        Reservation reservation = Reservation.builder()
-                .user(user)
-                .showtime(showtime)
-                .status("CONFIRMED")
-                .totalAmount(totalAmount)
-                .build();
-        reservation = reservationRepository.save(reservation);
-
-        // 7. Create ReservationSeat for each seat
-        final Reservation savedReservation = reservation;
-        List<ReservationSeat> reservationSeats = seats.stream()
-                .map(seat -> ReservationSeat.builder()
-                        .reservation(savedReservation)
-                        .seat(seat)
-                        .showtime(showtime)
-                        .build())
-                .collect(Collectors.toList());
-
-        reservationSeatRepository.saveAll(reservationSeats);
-
-        return toResponse(reservation, reservationSeats);
+        return seatHoldService.createDirectBooking(
+                request.getShowtimeId(), request.getSeatIds(), userEmail);
     }
 
     @Transactional(readOnly = true)
