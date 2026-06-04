@@ -59,12 +59,35 @@ export type MovieDto = {
   showtimes?: ShowtimeDto[] | null;
 };
 
+export type SeatStatus = "AVAILABLE" | "BOOKED" | "HELD_BY_ME" | "HELD_BY_OTHER";
+
 export type SeatDto = {
   id: number;
   rowLabel: string;
   seatNumber: number;
   seatType: "REGULAR" | "PREMIUM";
-  status: "AVAILABLE" | "BOOKED";
+  status: SeatStatus;
+};
+
+export type SeatHoldSeatInfo = {
+  seatId: number;
+  rowLabel: string;
+  seatNumber: number;
+  seatType: string;
+};
+
+export type SeatHoldDto = {
+  holdId: string;
+  showtimeId: number;
+  movieTitle: string;
+  hallName: string;
+  showDate: string;
+  showTime: string;
+  seats: SeatHoldSeatInfo[];
+  status: "ACTIVE" | "CONFIRMED" | "EXPIRED" | "RELEASED";
+  expiresAt: string;
+  expiresInSeconds: number;
+  totalAmount: number;
 };
 
 export type ReservationSeatInfo = {
@@ -211,6 +234,25 @@ export const showtimes = {
     request<SeatDto[]>(`/api/showtimes/${showtimeId}/seats`),
   get: (showtimeId: number | string) =>
     request<ShowtimeDto>(`/api/showtimes/${showtimeId}`),
+  seatMap: (showtimeId: number | string) =>
+    request<SeatDto[]>(`/api/showtimes/${showtimeId}/seat-map`),
+};
+
+// ---------- Holds ----------
+
+export const holds = {
+  create: (showtimeId: number, seatIds: number[]) =>
+    request<SeatHoldDto>("/api/holds", {
+      method: "POST",
+      body: JSON.stringify({ showtimeId, seatIds }),
+    }),
+  get: (holdId: string) => request<SeatHoldDto>(`/api/holds/${holdId}`),
+  refresh: (holdId: string) =>
+    request<SeatHoldDto>(`/api/holds/${holdId}/refresh`, { method: "POST" }),
+  release: (holdId: string) =>
+    request<void>(`/api/holds/${holdId}`, { method: "DELETE" }),
+  confirm: (holdId: string) =>
+    request<ReservationDto>(`/api/holds/${holdId}/confirm`, { method: "POST" }),
 };
 
 // ---------- Reservations ----------
