@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,8 @@ public class ShowtimeService {
     private final SeatRepository seatRepository;
     private final ReservationSeatRepository reservationSeatRepository;
     private final ReservationRepository reservationRepository;
+    private final SeatAllocationRepository seatAllocationRepository;
+    private final UserRepository userRepository;
 
     public List<ShowtimeResponse> getShowtimesForMovie(Long movieId, String date) {
         List<Showtime> showtimes = showtimeRepository.findByMovieIdAndStatusAndStartTimeAfter(
@@ -72,21 +75,94 @@ public class ShowtimeService {
 
         List<Seat> allSeats = seatRepository.findByHallId(showtime.getHall().getId());
 
-        // Get set of booked seat IDs for this showtime
         Set<Long> bookedSeatIds = reservationSeatRepository.findByShowtimeId(showtimeId)
                 .stream()
                 .filter(rs -> "CONFIRMED".equals(rs.getReservation().getStatus()))
                 .map(rs -> rs.getSeat().getId())
                 .collect(Collectors.toSet());
 
+        // Active (non-expired) holds also block the seat
+        Set<Long> heldSeatIds = seatAllocationRepository.findByShowtimeId(showtimeId)
+                .stream()
+                .filter(sa -> sa.getHoldExpiresAt().isAfter(LocalDateTime.now()))
+                .map(sa -> sa.getSeat().getId())
+                .collect(Collectors.toSet());
+
         return allSeats.stream()
-                .map(seat -> SeatResponse.builder()
-                        .id(seat.getId())
-                        .rowLabel(seat.getRowLabel())
-                        .seatNumber(seat.getSeatNumber())
-                        .seatType(seat.getSeatType())
-                        .status(bookedSeatIds.contains(seat.getId()) ? "BOOKED" : "AVAILABLE")
-                        .build())
+                .map(seat -> {
+                    String status;
+                    if (bookedSeatIds.contains(seat.getId())) status = "BOOKED";
+                    else if (heldSeatIds.contains(seat.getId())) status = "HELD_BY_OTHER";
+                    else status = "AVAILABLE";
+                    return SeatResponse.builder()
+                            .id(seat.getId())
+                            .rowLabel(seat.getRowLabel())
+                            .seatNumber(seat.getSeatNumber())
+                            .seatType(seat.getSeatType())
+                            .status(status)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Caller-aware seat map: distinguishes HELD_BY_ME vs HELD_BY_OTHER.
+     * Requires the caller's email so we can resolve ownership.
+     */
+    @Transactional
+    public List<SeatResponse> getSeatMap(Long showtimeId, String callerEmail) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Showtime", showtimeId));
+
+        // Lazy-expire stale allocations before building the map
+        seatAllocationRepository.deleteExpiredForSeats(
+                showtimeId,
+                seatRepository.findByHallId(showtime.getHall().getId())
+                        .stream().map(Seat::getId).collect(Collectors.toList()),
+                LocalDateTime.now());
+
+        List<Seat> allSeats = seatRepository.findByHallId(showtime.getHall().getId());
+
+        Set<Long> bookedSeatIds = reservationSeatRepository.findByShowtimeId(showtimeId)
+                .stream()
+                .filter(rs -> "CONFIRMED".equals(rs.getReservation().getStatus()))
+                .map(rs -> rs.getSeat().getId())
+                .collect(Collectors.toSet());
+
+        Map<Long, SeatAllocation> allocationBySeatId = seatAllocationRepository
+                .findByShowtimeId(showtimeId)
+                .stream()
+                .collect(Collectors.toMap(sa -> sa.getSeat().getId(), sa -> sa, (a, b) -> a));
+
+        Long callerId = null;
+        if (callerEmail != null) {
+            callerId = userRepository.findByEmail(callerEmail).map(User::getId).orElse(null);
+        }
+        final Long finalCallerId = callerId;
+
+        return allSeats.stream()
+                .map(seat -> {
+                    String status;
+                    if (bookedSeatIds.contains(seat.getId())) {
+                        status = "BOOKED";
+                    } else {
+                        SeatAllocation alloc = allocationBySeatId.get(seat.getId());
+                        if (alloc == null) {
+                            status = "AVAILABLE";
+                        } else if (finalCallerId != null && alloc.getHoldOwner().getId().equals(finalCallerId)) {
+                            status = "HELD_BY_ME";
+                        } else {
+                            status = "HELD_BY_OTHER";
+                        }
+                    }
+                    return SeatResponse.builder()
+                            .id(seat.getId())
+                            .rowLabel(seat.getRowLabel())
+                            .seatNumber(seat.getSeatNumber())
+                            .seatType(seat.getSeatType())
+                            .status(status)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 

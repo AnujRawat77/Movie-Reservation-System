@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -41,6 +43,16 @@ public class ShowtimeController {
     @GetMapping("/{id}/seats")
     public ResponseEntity<ApiResponse<List<SeatResponse>>> getAvailableSeats(@PathVariable Long id) {
         List<SeatResponse> seats = showtimeService.getAvailableSeats(id);
+        return ResponseEntity.ok(ApiResponse.success(seats));
+    }
+
+    /** Caller-aware seat map — returns HELD_BY_ME vs HELD_BY_OTHER per authenticated user. */
+    @GetMapping("/{id}/seat-map")
+    public ResponseEntity<ApiResponse<List<SeatResponse>>> getSeatMap(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String callerEmail = userDetails != null ? userDetails.getUsername() : null;
+        List<SeatResponse> seats = showtimeService.getSeatMap(id, callerEmail);
         return ResponseEntity.ok(ApiResponse.success(seats));
     }
 
