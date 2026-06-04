@@ -59,11 +59,18 @@ public class ApiConfig {
         public static final String SHOWTIMES        = "/api/showtimes";
         public static final String SHOWTIME_BY_ID   = "/api/showtimes/{id}";
         public static final String SHOWTIME_SEATS   = "/api/showtimes/{id}/seats";
+        public static final String SHOWTIME_SEAT_MAP= "/api/showtimes/{id}/seat-map";
 
         // Reservations
         public static final String RESERVATIONS     = "/api/reservations";
         public static final String RESERVATION_ME   = "/api/reservations/me";
         public static final String RESERVATION_BY_ID= "/api/reservations/{id}";
+
+        // Holds
+        public static final String HOLDS            = "/api/holds";
+        public static final String HOLD_BY_ID       = "/api/holds/{holdId}";
+        public static final String HOLD_REFRESH     = "/api/holds/{holdId}/refresh";
+        public static final String HOLD_CONFIRM     = "/api/holds/{holdId}/confirm";
 
         // Users
         public static final String USERS            = "/api/users";
@@ -76,4 +83,3 @@ public class ApiConfig {
         public static final String REPORT_TOP_MOVIES= "/api/reports/top-movies";
     }
 }
-
