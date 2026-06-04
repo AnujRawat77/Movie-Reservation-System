@@ -28,6 +28,7 @@ import { Route as AdminMoviesRouteImport } from './routes/admin.movies'
 import { Route as AdminHallsRouteImport } from './routes/admin.halls'
 import { Route as AdminGenresRouteImport } from './routes/admin.genres'
 import { Route as BookingSuccessIdRouteImport } from './routes/booking.success.$id'
+import { Route as BookingConfirmHoldIdRouteImport } from './routes/booking.confirm.$holdId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -124,6 +125,11 @@ const BookingSuccessIdRoute = BookingSuccessIdRouteImport.update({
   path: '/booking/success/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingConfirmHoldIdRoute = BookingConfirmHoldIdRouteImport.update({
+  id: '/booking/confirm/$holdId',
+  path: '/booking/confirm/$holdId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/movies/$id': typeof MoviesIdRoute
   '/admin/': typeof AdminIndexRoute
   '/movies/': typeof MoviesIndexRoute
+  '/booking/confirm/$holdId': typeof BookingConfirmHoldIdRoute
   '/booking/success/$id': typeof BookingSuccessIdRoute
 }
 export interface FileRoutesByTo {
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/movies/$id': typeof MoviesIdRoute
   '/admin': typeof AdminIndexRoute
   '/movies': typeof MoviesIndexRoute
+  '/booking/confirm/$holdId': typeof BookingConfirmHoldIdRoute
   '/booking/success/$id': typeof BookingSuccessIdRoute
 }
 export interface FileRoutesById {
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/movies/$id': typeof MoviesIdRoute
   '/admin/': typeof AdminIndexRoute
   '/movies/': typeof MoviesIndexRoute
+  '/booking/confirm/$holdId': typeof BookingConfirmHoldIdRoute
   '/booking/success/$id': typeof BookingSuccessIdRoute
 }
 export interface FileRouteTypes {
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/movies/$id'
     | '/admin/'
     | '/movies/'
+    | '/booking/confirm/$holdId'
     | '/booking/success/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/movies/$id'
     | '/admin'
     | '/movies'
+    | '/booking/confirm/$holdId'
     | '/booking/success/$id'
   id:
     | '__root__'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/movies/$id'
     | '/admin/'
     | '/movies/'
+    | '/booking/confirm/$holdId'
     | '/booking/success/$id'
   fileRoutesById: FileRoutesById
 }
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   BookingShowtimeIdRoute: typeof BookingShowtimeIdRoute
   MoviesIdRoute: typeof MoviesIdRoute
   MoviesIndexRoute: typeof MoviesIndexRoute
+  BookingConfirmHoldIdRoute: typeof BookingConfirmHoldIdRoute
   BookingSuccessIdRoute: typeof BookingSuccessIdRoute
 }
 
@@ -401,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingSuccessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/booking/confirm/$holdId': {
+      id: '/booking/confirm/$holdId'
+      path: '/booking/confirm/$holdId'
+      fullPath: '/booking/confirm/$holdId'
+      preLoaderRoute: typeof BookingConfirmHoldIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -450,6 +470,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingShowtimeIdRoute: BookingShowtimeIdRoute,
   MoviesIdRoute: MoviesIdRoute,
   MoviesIndexRoute: MoviesIndexRoute,
+  BookingConfirmHoldIdRoute: BookingConfirmHoldIdRoute,
   BookingSuccessIdRoute: BookingSuccessIdRoute,
 }
 export const routeTree = rootRouteImport
