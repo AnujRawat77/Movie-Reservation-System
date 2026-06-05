@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.UserRole;
 import com.movie_reservation.MovieReservationSystem.dto.request.LoginRequest;
 import com.movie_reservation.MovieReservationSystem.dto.request.RegisterRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.AuthResponse;
@@ -9,9 +10,11 @@ import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundEx
 import com.movie_reservation.MovieReservationSystem.repository.UserRepository;
 import com.movie_reservation.MovieReservationSystem.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,10 +32,11 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role("USER")
+                .role(UserRole.USER)
                 .build();
 
         user = userRepository.save(user);
+        log.info("Registered new user id={} email={}", user.getId(), user.getEmail());
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
@@ -52,6 +56,8 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BusinessException("INVALID_CREDENTIALS", "Invalid email or password");
         }
+
+        log.debug("Login successful for user id={}", user.getId());
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 

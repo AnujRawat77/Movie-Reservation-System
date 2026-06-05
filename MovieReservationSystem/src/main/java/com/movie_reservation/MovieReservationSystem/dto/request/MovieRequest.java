@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class MovieRequest {
 
     private String description;
 
+    @URL(message = "Poster URL must be a valid URL")
     private String posterUrl;
 
     @Min(value = 1, message = "Duration must be at least 1 minute")

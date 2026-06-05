@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.ReservationStatus;
 import com.movie_reservation.MovieReservationSystem.dto.request.ReservationRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
 import com.movie_reservation.MovieReservationSystem.entity.*;
@@ -7,6 +8,7 @@ import com.movie_reservation.MovieReservationSystem.exception.BusinessException;
 import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundException;
 import com.movie_reservation.MovieReservationSystem.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -27,11 +30,6 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final SeatHoldService seatHoldService;
 
-    /**
-     * Legacy direct-book endpoint — internally routes through the hold system so all
-     * bookings benefit from the same DB-level concurrency guarantees (create hold →
-     * immediately confirm). This keeps the API contract unchanged while making it race-safe.
-     */
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, String userEmail) {
         return seatHoldService.createDirectBooking(
@@ -75,7 +73,7 @@ public class ReservationService {
             throw new BusinessException("UNAUTHORIZED", "You can only cancel your own reservations");
         }
 
-        if ("CANCELLED".equals(reservation.getStatus())) {
+        if (ReservationStatus.CANCELLED.equals(reservation.getStatus())) {
             throw new BusinessException("ALREADY_CANCELLED", "Reservation is already cancelled");
         }
 
@@ -83,17 +81,15 @@ public class ReservationService {
             throw new BusinessException("SHOWTIME_PAST", "Cannot cancel a reservation for a past showtime");
         }
 
-        reservation.setStatus("CANCELLED");
+        reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
+        log.info("Cancelled reservation id={} by user={}", id, email);
     }
 
     public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
-                .map(r -> {
-                    List<ReservationSeat> rSeats = r.getReservationSeats();
-                    return toResponse(r, rSeats);
-                })
+                .map(r -> toResponse(r, r.getReservationSeats()))
                 .collect(Collectors.toList());
     }
 

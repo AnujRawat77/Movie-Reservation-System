@@ -1,5 +1,8 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.ReservationStatus;
+import com.movie_reservation.MovieReservationSystem.constant.SeatType;
+import com.movie_reservation.MovieReservationSystem.constant.ShowtimeStatus;
 import com.movie_reservation.MovieReservationSystem.dto.request.CreateHoldRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.SeatHoldResponse;
@@ -9,6 +12,7 @@ import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundEx
 import com.movie_reservation.MovieReservationSystem.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,9 @@ public class SeatHoldService {
 
     private static final int HOLD_DURATION_MINUTES = 5;
 
+    @Value("${reservation.premium-seat-multiplier:1.5}")
+    private BigDecimal premiumSeatMultiplier;
+
     private final SeatHoldRepository seatHoldRepository;
     private final SeatAllocationRepository seatAllocationRepository;
     private final ShowtimeRepository showtimeRepository;
@@ -45,7 +52,7 @@ public class SeatHoldService {
         Showtime showtime = showtimeRepository.findById(request.getShowtimeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Showtime", request.getShowtimeId()));
 
-        if (!"SCHEDULED".equals(showtime.getStatus())) {
+        if (!ShowtimeStatus.SCHEDULED.equals(showtime.getStatus())) {
             throw new BusinessException("SHOWTIME_NOT_AVAILABLE", "Showtime is not available for booking");
         }
         if (!showtime.getStartTime().isAfter(LocalDateTime.now())) {
@@ -63,7 +70,7 @@ public class SeatHoldService {
         // Check for already-confirmed bookings
         for (Long seatId : seatIds) {
             boolean alreadyBooked = reservationSeatRepository
-                    .existsBySeatIdAndShowtimeIdAndReservationStatus(seatId, request.getShowtimeId(), "CONFIRMED");
+                    .existsBySeatIdAndShowtimeIdAndReservationStatus(seatId, request.getShowtimeId(), ReservationStatus.CONFIRMED);
             if (alreadyBooked) {
                 Seat seat = seatRepository.findById(seatId)
                         .orElseThrow(() -> new ResourceNotFoundException("Seat", seatId));
@@ -128,7 +135,7 @@ public class SeatHoldService {
         if (!hold.getUser().getEmail().equals(userEmail)) {
             throw new BusinessException("HOLD_NOT_OWNED", "You do not own this hold");
         }
-        if ("CONFIRMED".equals(hold.getStatus())) {
+        if (ReservationStatus.CONFIRMED.equals(hold.getStatus())) {
             throw new BusinessException("HOLD_ALREADY_CONFIRMED", "Hold has already been confirmed as a booking");
         }
 
@@ -186,7 +193,7 @@ public class SeatHoldService {
         BigDecimal totalAmount = seats.stream()
                 .map(seat -> {
                     BigDecimal price = showtime.getPrice();
-                    return "PREMIUM".equals(seat.getSeatType()) ? price.multiply(new BigDecimal("1.5")) : price;
+                    return SeatType.PREMIUM.equals(seat.getSeatType()) ? price.multiply(premiumSeatMultiplier) : price;
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -285,7 +292,7 @@ public class SeatHoldService {
         BigDecimal totalAmount = seats.stream()
                 .map(seat -> {
                     BigDecimal price = showtime.getPrice();
-                    return "PREMIUM".equals(seat.getSeatType()) ? price.multiply(new BigDecimal("1.5")) : price;
+                    return SeatType.PREMIUM.equals(seat.getSeatType()) ? price.multiply(premiumSeatMultiplier) : price;
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

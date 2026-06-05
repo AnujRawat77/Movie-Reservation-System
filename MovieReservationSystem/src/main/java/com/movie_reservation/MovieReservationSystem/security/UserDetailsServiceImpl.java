@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.security;
 
+import com.movie_reservation.MovieReservationSystem.constant.UserRole;
 import com.movie_reservation.MovieReservationSystem.entity.User;
 import com.movie_reservation.MovieReservationSystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        String role = "ROLE_" + user.getRole(); // e.g. "ROLE_USER" or "ROLE_ADMIN"
+        String role = UserRole.ADMIN.equals(user.getRole()) ? UserRole.ROLE_ADMIN : UserRole.ROLE_USER;
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())

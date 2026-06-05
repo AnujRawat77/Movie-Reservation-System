@@ -1,5 +1,7 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.ShowtimeStatus;
+import com.movie_reservation.MovieReservationSystem.constant.SeatType;
 import com.movie_reservation.MovieReservationSystem.dto.request.HallRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.HallResponse;
 import com.movie_reservation.MovieReservationSystem.entity.Hall;
@@ -10,17 +12,25 @@ import com.movie_reservation.MovieReservationSystem.repository.HallRepository;
 import com.movie_reservation.MovieReservationSystem.repository.SeatRepository;
 import com.movie_reservation.MovieReservationSystem.repository.ShowtimeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HallService {
+
+    @Value("${hall.premium-rows:D,E}")
+    private String[] premiumRows;
 
     private final HallRepository hallRepository;
     private final SeatRepository seatRepository;
@@ -47,6 +57,7 @@ public class HallService {
                 .build());
 
         seatRepository.saveAll(buildSeats(hall, totalRows, seatsPerRow));
+        log.info("Created hall id={} name={} rows={} seatsPerRow={}", hall.getId(), name, totalRows, seatsPerRow);
         return toResponse(hall);
     }
 
@@ -61,12 +72,11 @@ public class HallService {
 
         if (layoutChanged) {
             boolean hasFutureShowtimes = showtimeRepository.existsByHallIdAndStatusAndStartTimeAfter(
-                    id, "SCHEDULED", LocalDateTime.now());
+                    id, ShowtimeStatus.SCHEDULED, LocalDateTime.now());
             if (hasFutureShowtimes) {
                 throw new BusinessException("HAS_ACTIVE_SHOWTIMES",
                         "Cannot change hall layout while it has scheduled future showtimes");
             }
-            // Rebuild seats from scratch
             List<Seat> existing = seatRepository.findByHallId(id);
             seatRepository.deleteAll(existing);
             seatRepository.flush();
@@ -76,6 +86,7 @@ public class HallService {
         }
         hall.setName(request.getName());
         hall = hallRepository.save(hall);
+        log.info("Updated hall id={}", id);
         return toResponse(hall);
     }
 
@@ -85,22 +96,26 @@ public class HallService {
                 .orElseThrow(() -> new ResourceNotFoundException("Hall", id));
 
         boolean hasFutureShowtimes = showtimeRepository.existsByHallIdAndStatusAndStartTimeAfter(
-                id, "SCHEDULED", LocalDateTime.now());
+                id, ShowtimeStatus.SCHEDULED, LocalDateTime.now());
         if (hasFutureShowtimes) {
             throw new BusinessException("HAS_ACTIVE_SHOWTIMES",
                     "Cannot delete hall with scheduled future showtimes");
         }
-        // Remove seats first to satisfy FK
         seatRepository.deleteAll(seatRepository.findByHallId(id));
         hallRepository.delete(hall);
+        log.info("Deleted hall id={}", id);
     }
 
     private List<Seat> buildSeats(Hall hall, int totalRows, int seatsPerRow) {
-        String[] rowLabels = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T"};
+        Set<String> premiumRowSet = Arrays.stream(premiumRows)
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
         List<Seat> seats = new ArrayList<>();
         for (int r = 0; r < totalRows; r++) {
-            String rowLabel = r < rowLabels.length ? rowLabels[r] : String.valueOf((char) ('A' + r));
-            String seatType = (rowLabel.equals("D") || rowLabel.equals("E")) ? "PREMIUM" : "REGULAR";
+            // Generate row label dynamically: A-Z, then AA, AB, ...
+            String rowLabel = rowLabel(r);
+            String seatType = premiumRowSet.contains(rowLabel) ? SeatType.PREMIUM : SeatType.REGULAR;
             for (int s = 1; s <= seatsPerRow; s++) {
                 seats.add(Seat.builder()
                         .hall(hall)
@@ -111,6 +126,26 @@ public class HallService {
             }
         }
         return seats;
+    }
+
+    private static String rowLabel(int index) {
+        if (index < 26) {
+            return String.valueOf((char) ('A' + index));
+        }
+        // For rows beyond Z: AA, AB, ... ZZ, AAA, ...
+        int letters = 26;
+        int base = 26;
+        while (index >= letters) {
+            index -= letters;
+            letters *= 26;
+            base++;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < base - 25; i++) {
+            sb.insert(0, (char) ('A' + (index % 26)));
+            index /= 26;
+        }
+        return sb.toString();
     }
 
     private HallResponse toResponse(Hall hall) {

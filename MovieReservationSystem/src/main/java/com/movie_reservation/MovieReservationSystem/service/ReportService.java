@@ -1,13 +1,13 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
-import com.movie_reservation.MovieReservationSystem.entity.Movie;
-import com.movie_reservation.MovieReservationSystem.entity.Showtime;
 import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundException;
-import com.movie_reservation.MovieReservationSystem.repository.MovieRepository;
+import com.movie_reservation.MovieReservationSystem.entity.Showtime;
 import com.movie_reservation.MovieReservationSystem.repository.ReservationRepository;
 import com.movie_reservation.MovieReservationSystem.repository.ReservationSeatRepository;
 import com.movie_reservation.MovieReservationSystem.repository.ShowtimeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -23,16 +24,15 @@ public class ReportService {
     private final ReservationRepository reservationRepository;
     private final ReservationSeatRepository reservationSeatRepository;
     private final ShowtimeRepository showtimeRepository;
-    private final MovieRepository movieRepository;
 
     public Map<String, Object> getRevenue(LocalDate from, LocalDate to) {
         LocalDateTime fromTime = (from != null) ? from.atStartOfDay() : LocalDate.now().minusMonths(1).atStartOfDay();
         LocalDateTime toTime = (to != null) ? to.plusDays(1).atStartOfDay() : LocalDateTime.now();
 
-        // Group reservations by movie title and sum revenue
-        Map<String, BigDecimal> revenueByMovie = reservationRepository.findAll().stream()
-                .filter(r -> "CONFIRMED".equals(r.getStatus()))
-                .filter(r -> !r.getCreatedAt().isBefore(fromTime) && r.getCreatedAt().isBefore(toTime))
+        // Single DB query filtered by date range — no more full table scan + Java filtering
+        Map<String, BigDecimal> revenueByMovie = reservationRepository
+                .findConfirmedInRange(fromTime, toTime)
+                .stream()
                 .collect(Collectors.groupingBy(
                         r -> r.getShowtime().getMovie().getTitle(),
                         Collectors.reducing(BigDecimal.ZERO,
@@ -51,6 +51,8 @@ public class ReportService {
                     return entry;
                 })
                 .collect(Collectors.toList());
+
+        log.debug("getRevenue: from={} to={} totalRevenue={}", fromTime.toLocalDate(), toTime.toLocalDate(), totalRevenue);
 
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("from", fromTime.toLocalDate());
@@ -83,22 +85,17 @@ public class ReportService {
     }
 
     public List<Map<String, Object>> getTopMovies() {
-        List<Movie> movies = movieRepository.findAll();
-
-        return movies.stream()
-                .map(movie -> {
-                    BigDecimal revenue = Optional.ofNullable(
-                            reservationRepository.sumRevenueByMovieTitle(movie.getTitle())
-                    ).orElse(BigDecimal.ZERO);
-
+        // Single GROUP BY query — replaces N+1 per-movie sumRevenueByMovieTitle calls
+        return reservationRepository
+                .findTopMoviesByRevenue(PageRequest.of(0, 10))
+                .stream()
+                .map(row -> {
                     Map<String, Object> entry = new LinkedHashMap<>();
-                    entry.put("movieId", movie.getId());
-                    entry.put("title", movie.getTitle());
-                    entry.put("revenue", revenue);
+                    entry.put("movieId", row[0]);
+                    entry.put("title", row[1]);
+                    entry.put("revenue", row[2]);
                     return entry;
                 })
-                .sorted((a, b) -> ((BigDecimal) b.get("revenue")).compareTo((BigDecimal) a.get("revenue")))
-                .limit(10)
                 .collect(Collectors.toList());
     }
 }

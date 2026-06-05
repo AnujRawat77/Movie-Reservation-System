@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.controller;
 
+import com.movie_reservation.MovieReservationSystem.constant.UserRole;
 import com.movie_reservation.MovieReservationSystem.dto.request.ReservationRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ApiResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
@@ -41,7 +42,7 @@ public class ReservationController {
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
         boolean isAdmin = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals(UserRole.ROLE_ADMIN));
         ReservationResponse response = reservationService.getReservationById(id, userDetails.getUsername(), isAdmin);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -51,7 +52,7 @@ public class ReservationController {
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
         boolean isAdmin = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals(UserRole.ROLE_ADMIN));
         reservationService.cancelReservation(id, userDetails.getUsername(), isAdmin);
         return ResponseEntity.ok(ApiResponse.success(null, "Reservation cancelled successfully"));
     }

@@ -1,5 +1,7 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.ReservationStatus;
+import com.movie_reservation.MovieReservationSystem.constant.ShowtimeStatus;
 import com.movie_reservation.MovieReservationSystem.dto.request.ShowtimeRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.SeatResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.ShowtimeResponse;
@@ -8,6 +10,8 @@ import com.movie_reservation.MovieReservationSystem.exception.BusinessException;
 import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundException;
 import com.movie_reservation.MovieReservationSystem.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -19,9 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShowtimeService {
+
+    @Value("${showtime.buffer-minutes:15}")
+    private int bufferMinutes;
 
     private final ShowtimeRepository showtimeRepository;
     private final MovieRepository movieRepository;
@@ -34,7 +42,7 @@ public class ShowtimeService {
 
     public List<ShowtimeResponse> getShowtimesForMovie(Long movieId, String date) {
         List<Showtime> showtimes = showtimeRepository.findByMovieIdAndStatusAndStartTimeAfter(
-                movieId, "SCHEDULED", LocalDateTime.now());
+                movieId, ShowtimeStatus.SCHEDULED, LocalDateTime.now());
 
         if (StringUtils.hasText(date)) {
             showtimes = showtimes.stream()
@@ -77,11 +85,10 @@ public class ShowtimeService {
 
         Set<Long> bookedSeatIds = reservationSeatRepository.findByShowtimeId(showtimeId)
                 .stream()
-                .filter(rs -> "CONFIRMED".equals(rs.getReservation().getStatus()))
+                .filter(rs -> rs.getReservation() != null && ReservationStatus.CONFIRMED.equals(rs.getReservation().getStatus()))
                 .map(rs -> rs.getSeat().getId())
                 .collect(Collectors.toSet());
 
-        // Active (non-expired) holds also block the seat
         Set<Long> heldSeatIds = seatAllocationRepository.findByShowtimeId(showtimeId)
                 .stream()
                 .filter(sa -> sa.getHoldExpiresAt().isAfter(LocalDateTime.now()))
@@ -105,16 +112,11 @@ public class ShowtimeService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Caller-aware seat map: distinguishes HELD_BY_ME vs HELD_BY_OTHER.
-     * Requires the caller's email so we can resolve ownership.
-     */
     @Transactional
     public List<SeatResponse> getSeatMap(Long showtimeId, String callerEmail) {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Showtime", showtimeId));
 
-        // Lazy-expire stale allocations before building the map
         seatAllocationRepository.deleteExpiredForSeats(
                 showtimeId,
                 seatRepository.findByHallId(showtime.getHall().getId())
@@ -125,7 +127,7 @@ public class ShowtimeService {
 
         Set<Long> bookedSeatIds = reservationSeatRepository.findByShowtimeId(showtimeId)
                 .stream()
-                .filter(rs -> "CONFIRMED".equals(rs.getReservation().getStatus()))
+                .filter(rs -> rs.getReservation() != null && ReservationStatus.CONFIRMED.equals(rs.getReservation().getStatus()))
                 .map(rs -> rs.getSeat().getId())
                 .collect(Collectors.toSet());
 
@@ -175,11 +177,11 @@ public class ShowtimeService {
 
         LocalDateTime endTime = request.getStartTime()
                 .plusMinutes(movie.getDurationMinutes())
-                .plusMinutes(15);
+                .plusMinutes(bufferMinutes);
 
         boolean hasOverlap = showtimeRepository
                 .existsByHallIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
-                        hall.getId(), "SCHEDULED", endTime, request.getStartTime());
+                        hall.getId(), ShowtimeStatus.SCHEDULED, endTime, request.getStartTime());
 
         if (hasOverlap) {
             throw new BusinessException("SCHEDULE_CONFLICT",
@@ -192,10 +194,11 @@ public class ShowtimeService {
                 .startTime(request.getStartTime())
                 .endTime(endTime)
                 .price(request.getPrice())
-                .status("SCHEDULED")
+                .status(ShowtimeStatus.SCHEDULED)
                 .build();
 
         showtime = showtimeRepository.save(showtime);
+        log.info("Created showtime id={} movieId={} hallId={}", showtime.getId(), movie.getId(), hall.getId());
         return toResponse(showtime);
     }
 
@@ -211,12 +214,11 @@ public class ShowtimeService {
 
         LocalDateTime endTime = request.getStartTime()
                 .plusMinutes(movie.getDurationMinutes())
-                .plusMinutes(15);
+                .plusMinutes(bufferMinutes);
 
-        // Check for overlap, excluding this showtime
         boolean hasOverlap = showtimeRepository
                 .existsByHallIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
-                        hall.getId(), "SCHEDULED", endTime, request.getStartTime());
+                        hall.getId(), ShowtimeStatus.SCHEDULED, endTime, request.getStartTime());
 
         if (hasOverlap && !showtime.getHall().getId().equals(hall.getId())) {
             throw new BusinessException("SCHEDULE_CONFLICT",
@@ -230,6 +232,7 @@ public class ShowtimeService {
         showtime.setPrice(request.getPrice());
 
         showtime = showtimeRepository.save(showtime);
+        log.info("Updated showtime id={}", id);
         return toResponse(showtime);
     }
 
@@ -238,19 +241,20 @@ public class ShowtimeService {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Showtime", id));
 
-        if ("CANCELLED".equals(showtime.getStatus())) {
+        if (ShowtimeStatus.CANCELLED.equals(showtime.getStatus())) {
             throw new BusinessException("ALREADY_CANCELLED", "Showtime is already cancelled");
         }
 
-        showtime.setStatus("CANCELLED");
+        showtime.setStatus(ShowtimeStatus.CANCELLED);
         showtimeRepository.save(showtime);
 
-        // Cancel all confirmed reservations for this showtime
         reservationRepository.findConfirmedByShowtimeId(id)
                 .forEach(reservation -> {
-                    reservation.setStatus("CANCELLED");
+                    reservation.setStatus(ReservationStatus.CANCELLED);
                     reservationRepository.save(reservation);
                 });
+
+        log.info("Cancelled showtime id={}", id);
     }
 
     public ShowtimeResponse toResponse(Showtime showtime) {

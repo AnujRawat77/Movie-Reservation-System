@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.constant.ShowtimeStatus;
 import com.movie_reservation.MovieReservationSystem.dto.request.MovieRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.GenreResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.MovieResponse;
@@ -13,6 +14,7 @@ import com.movie_reservation.MovieReservationSystem.repository.GenreRepository;
 import com.movie_reservation.MovieReservationSystem.repository.MovieRepository;
 import com.movie_reservation.MovieReservationSystem.repository.ShowtimeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MovieService {
@@ -36,21 +39,11 @@ public class MovieService {
         List<Movie> movies;
 
         if (includeDeleted) {
-            movies = movieRepository.findAll();
-            if (StringUtils.hasText(search)) {
-                String needle = search.toLowerCase();
-                movies = movies.stream()
-                        .filter(m -> m.getTitle() != null && m.getTitle().toLowerCase().contains(needle))
-                        .collect(Collectors.toList());
-            }
-            if (StringUtils.hasText(status)) {
-                movies = movies.stream().filter(m -> status.equals(m.getStatus())).collect(Collectors.toList());
-            }
-            if (StringUtils.hasText(genre)) {
-                movies = movies.stream()
-                        .filter(m -> m.getGenres().stream().anyMatch(g -> g.getName().equals(genre)))
-                        .collect(Collectors.toList());
-            }
+            // Push all filters to DB — avoids loading entire table then filtering in Java
+            movies = movieRepository.findAllWithFilters(
+                    StringUtils.hasText(search) ? search : null,
+                    StringUtils.hasText(status) ? status : null,
+                    StringUtils.hasText(genre) ? genre : null);
         } else if (StringUtils.hasText(search)) {
             movies = movieRepository.findByIsDeletedFalseAndTitleContainingIgnoreCase(search);
         } else if (StringUtils.hasText(status) && StringUtils.hasText(genre)) {
@@ -62,6 +55,9 @@ public class MovieService {
         } else {
             movies = movieRepository.findByIsDeletedFalse();
         }
+
+        log.debug("getAllMovies: found {} movies (status={}, genre={}, search={}, includeDeleted={})",
+                movies.size(), status, genre, search, includeDeleted);
 
         return movies.stream()
                 .map(m -> toResponse(m, false))
@@ -96,6 +92,7 @@ public class MovieService {
                 .build();
 
         movie = movieRepository.save(movie);
+        log.info("Created movie id={} title={}", movie.getId(), movie.getTitle());
         return toResponse(movie, false);
     }
 
@@ -119,6 +116,7 @@ public class MovieService {
         movie.setGenres(genres);
 
         movie = movieRepository.save(movie);
+        log.info("Updated movie id={}", id);
         return toResponse(movie, false);
     }
 
@@ -126,9 +124,8 @@ public class MovieService {
         Movie movie = movieRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", id));
 
-        // Check for active future showtimes
         boolean hasFutureShowtimes = showtimeRepository
-                .findByMovieIdAndStatusAndStartTimeAfter(id, "SCHEDULED", LocalDateTime.now())
+                .findByMovieIdAndStatusAndStartTimeAfter(id, ShowtimeStatus.SCHEDULED, LocalDateTime.now())
                 .stream()
                 .anyMatch(s -> s.getStartTime().isAfter(LocalDateTime.now()));
 
@@ -139,6 +136,7 @@ public class MovieService {
 
         movie.setDeleted(true);
         movieRepository.save(movie);
+        log.info("Soft-deleted movie id={}", id);
     }
 
     public MovieResponse toResponse(Movie movie, boolean includeShowtimes) {
@@ -149,7 +147,7 @@ public class MovieService {
         List<ShowtimeResponse> showtimeResponses = null;
         if (includeShowtimes) {
             showtimeResponses = showtimeRepository
-                    .findByMovieIdAndStatusAndStartTimeAfter(movie.getId(), "SCHEDULED", LocalDateTime.now())
+                    .findByMovieIdAndStatusAndStartTimeAfter(movie.getId(), ShowtimeStatus.SCHEDULED, LocalDateTime.now())
                     .stream()
                     .map(this::toShowtimeResponse)
                     .collect(Collectors.toList());
