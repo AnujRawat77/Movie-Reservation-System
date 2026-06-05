@@ -87,7 +87,7 @@
 - [x] **Seat hold / temporary reservation** — Reserve seats for 10–15 minutes while user completes payment. Auto-release on timeout. Needs a background scheduler (`@Scheduled`) or Redis TTL.
 - [ ] **Reservation modification** — Allow users to change seats or showtime on an existing booking (with business rules on cutoff time).
 - [ ] **Waitlist system** — When a showtime is full, allow users to join a queue. Auto-notify (email/in-app) and convert to booking when a seat is released.
-- [ ] **Cancellation policy & refund tracking** — Define policy (full refund > 24h, 50% < 24h, no refund < 2h). Track `refundAmount`, `refundStatus`, `cancellationReason` on `Reservation`.
+- [x] **Cancellation policy & refund tracking** — Define policy (full refund > 24h, 50% < 24h, no refund < 2h). Track `refundAmount`, `refundStatus`, `cancellationReason` on `Reservation`.
 
 ### Payment
 - [ ] **Payment integration (Stripe / Razorpay)** — Currently no payment processing. Add a payment service with webhook handling for confirmation and refunds.
@@ -101,9 +101,9 @@
 - [ ] **Upcoming showtime reminder** — Email reminder 2 hours before showtime using `@Scheduled`.
 
 ### Movie & Content
-- [ ] **Movie ratings & reviews** — Add `Review` entity (user, movie, rating 1–5, comment, timestamp). Expose GET/POST `/api/movies/{id}/reviews`.
-- [ ] **Movie search & advanced filters** — Full-text search on title/description, filter by genre, rating, language, release date range.
-- [ ] **Trailer / media links** — Add `trailerUrl`, `language`, `censorRating` (G/PG/PG-13/R), `director`, `cast` fields to `Movie`.
+- [x] **Movie ratings & reviews** — Add `Review` entity (user, movie, rating 1–5, comment, timestamp). Expose GET/POST `/api/movies/{id}/reviews`.
+- [x] **Movie search & advanced filters** — Full-text search on title/description, filter by genre, rating, language, release date range.
+- [x] **Trailer / media links** — Add `trailerUrl`, `language`, `censorRating` (G/PG/PG-13/R), `director`, `cast` fields to `Movie`.
 - [ ] **Upcoming movies / pre-booking** — Allow creating movies with `status=SOON` and let users register interest before showtimes are created.
 
 ### Admin & Analytics
