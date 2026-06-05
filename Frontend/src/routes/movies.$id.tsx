@@ -1,12 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, Globe, Play, Star, Users } from "lucide-react";
+import { ArrowLeft, Clock, Globe, Play, Star, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   movies as moviesApi,
+  reviews as reviewsApi,
   resolvePoster,
+  getToken,
   type MovieDto,
   type ShowtimeDto,
+  type ReviewDto,
 } from "@/lib/api";
 import { ROUTES } from "@/constants/routes";
 import { HammerButton } from "@/components/HammerButton";
@@ -14,9 +17,12 @@ import { HammerButton } from "@/components/HammerButton";
 export const Route = createFileRoute("/movies/$id")({
   loader: async ({ params }) => {
     try {
-      const movie = await moviesApi.get(params.id);
-      const showtimes = await moviesApi.showtimes(params.id);
-      return { movie, showtimes };
+      const [movie, showtimes, reviews] = await Promise.all([
+        moviesApi.get(params.id),
+        moviesApi.showtimes(params.id),
+        reviewsApi.list(params.id).catch(() => [] as ReviewDto[]),
+      ]);
+      return { movie, showtimes, reviews };
     } catch {
       throw notFound();
     }
@@ -46,10 +52,14 @@ function MovieDetail() {
   const loaderData = Route.useLoaderData() as {
     movie: MovieDto;
     showtimes: ShowtimeDto[];
+    reviews: ReviewDto[];
   };
   const movie = loaderData.movie;
   const [showtimes, setShowtimes] = useState<ShowtimeDto[]>(
     loaderData.showtimes ?? [],
+  );
+  const [reviewsList, setReviewsList] = useState<ReviewDto[]>(
+    loaderData.reviews ?? [],
   );
 
   useEffect(() => {
@@ -72,7 +82,7 @@ function MovieDetail() {
   const poster = resolvePoster(movie.posterUrl);
 
   return (
-    <>
+    <div>
       <section className="relative -mt-16 overflow-hidden pt-16">
         <div className="absolute inset-0 -z-20">
           <img
@@ -245,6 +255,189 @@ function MovieDetail() {
           </motion.div>
         </div>
       </section>
-    </>
+
+      <ReviewsSection movieId={movie.id} reviews={reviewsList} setReviews={setReviewsList} />
+    </div>
+  );
+}
+
+function ReviewsSection({
+  movieId,
+  reviews,
+  setReviews,
+}: {
+  movieId: number;
+  reviews: ReviewDto[];
+  setReviews: React.Dispatch<React.SetStateAction<ReviewDto[]>>;
+}) {
+  const isLoggedIn = !!getToken();
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (rating === 0) {
+      setError("Please select a rating");
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+    try {
+      const newReview = await reviewsApi.create(movieId, rating, comment);
+      setReviews((prev) => [newReview, ...prev]);
+      setRating(0);
+      setComment("");
+    } catch (err: any) {
+      setError(err.message || "Failed to submit review");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(reviewId: number) {
+    try {
+      await reviewsApi.delete(movieId, reviewId);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+        <div>
+          <h2 className="font-display text-3xl tracking-wider">
+            Reviews
+            {reviews.length > 0 && (
+              <span className="ml-3 text-lg text-muted-foreground">
+                {avgRating.toFixed(1)} <Star className="mb-0.5 inline h-4 w-4 fill-accent text-accent" /> · {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </h2>
+
+          {reviews.length === 0 ? (
+            <p className="mt-4 text-muted-foreground">
+              No reviews yet. Be the first to share your thoughts!
+            </p>
+          ) : (
+            <div className="mt-6 space-y-4">
+              {reviews.map((r) => (
+                <motion.div
+                  key={r.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-border bg-card/60 p-4"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{r.userName}</span>
+                        <span className="flex items-center gap-0.5 text-sm text-accent">
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3.5 w-3.5 ${i < r.rating ? "fill-accent" : "fill-none text-muted-foreground/40"}`}
+                            />
+                          ))}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {isLoggedIn && (
+                      <button
+                        onClick={() => handleDelete(r.id)}
+                        className="text-muted-foreground/50 transition-colors hover:text-red-400"
+                        title="Delete review"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {r.comment && (
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {r.comment}
+                    </p>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          {isLoggedIn ? (
+            <form
+              onSubmit={handleSubmit}
+              className="sticky top-24 rounded-xl border border-border bg-card/60 p-6"
+            >
+              <h3 className="font-display text-xl tracking-wider">Write a review</h3>
+
+              <div className="mt-4 flex gap-1">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    onClick={() => setRating(i + 1)}
+                    onMouseEnter={() => setHoverRating(i + 1)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`h-7 w-7 ${
+                        i < (hoverRating || rating)
+                          ? "fill-accent text-accent"
+                          : "fill-none text-muted-foreground/40"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Share your thoughts (optional)"
+                rows={4}
+                className="mt-4 w-full resize-none rounded-lg border border-border bg-background/60 px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:border-accent focus:outline-none"
+              />
+
+              {error && (
+                <p className="mt-2 text-sm text-red-400">{error}</p>
+              )}
+
+              <HammerButton
+                type="submit"
+                variant="gold"
+                size="sm"
+                disabled={submitting}
+                className="mt-4 w-full"
+              >
+                {submitting ? "Submitting…" : "Submit Review"}
+              </HammerButton>
+            </form>
+          ) : (
+            <div className="rounded-xl border border-border bg-card/60 p-6 text-center">
+              <p className="text-muted-foreground">
+                <Link to={ROUTES.login} className="text-accent hover:underline">
+                  Sign in
+                </Link>{" "}
+                to leave a review
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }

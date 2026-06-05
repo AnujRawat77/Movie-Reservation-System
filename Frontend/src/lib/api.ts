@@ -277,6 +277,32 @@ export const reservations = {
     request<void>(`/api/reservations/${id}`, { method: "DELETE" }),
 };
 
+// ---------- Reviews ----------
+
+export type ReviewDto = {
+  id: number;
+  userId: number;
+  userName: string;
+  movieId: number;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+};
+
+export const reviews = {
+  list: (movieId: number | string) =>
+    request<ReviewDto[]>(`/api/movies/${movieId}/reviews`),
+  create: (movieId: number | string, rating: number, comment?: string) =>
+    request<ReviewDto>(`/api/movies/${movieId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify({ rating, comment: comment || null }),
+    }),
+  delete: (movieId: number | string, reviewId: number) =>
+    request<void>(`/api/movies/${movieId}/reviews/${reviewId}`, {
+      method: "DELETE",
+    }),
+};
+
 // ---------- Admin types ----------
 
 export type UserDto = {

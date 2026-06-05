@@ -91,6 +91,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/reservations").hasRole("ADMIN")
                 // Seat-map requires auth (to resolve HELD_BY_ME); basic seats list is public
                 .requestMatchers(HttpMethod.GET, "/api/showtimes/*/seat-map").authenticated()
+                // Reviews: GET is public, POST/DELETE require auth
+                .requestMatchers(HttpMethod.GET, "/api/movies/*/reviews").permitAll()
 
                 // Everything else requires authentication
                 .anyRequest().authenticated()
