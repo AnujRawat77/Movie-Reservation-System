@@ -21,8 +21,12 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT DISTINCT m FROM Movie m JOIN FETCH m.genres WHERE m.isDeleted = false AND m.status = :status AND EXISTS (SELECT g FROM m.genres g WHERE g.name = :genre)")
     List<Movie> findByIsDeletedFalseAndStatusAndGenresName(@Param("status") String status, @Param("genre") String genre);
 
-    @Query("SELECT DISTINCT m FROM Movie m JOIN FETCH m.genres WHERE m.isDeleted = false AND LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%'))")
-    List<Movie> findByIsDeletedFalseAndTitleContainingIgnoreCase(@Param("title") String title);
+    @Query("SELECT DISTINCT m FROM Movie m JOIN FETCH m.genres WHERE m.isDeleted = false " +
+           "AND (LOWER(m.title) LIKE LOWER(CONCAT('%', :q, '%')) " +
+           "OR LOWER(m.description) LIKE LOWER(CONCAT('%', :q, '%')) " +
+           "OR LOWER(m.director) LIKE LOWER(CONCAT('%', :q, '%')) " +
+           "OR LOWER(m.cast) LIKE LOWER(CONCAT('%', :q, '%')))")
+    List<Movie> findBySearchQuery(@Param("q") String query);
 
     @Query("SELECT DISTINCT m FROM Movie m JOIN FETCH m.genres WHERE m.isDeleted = false AND EXISTS (SELECT g FROM m.genres g WHERE g.name = :genre)")
     List<Movie> findByIsDeletedFalseAndGenresName(@Param("genre") String genre);
@@ -31,7 +35,10 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByIdAndIsDeletedFalse(@Param("id") Long id);
 
     @Query("SELECT DISTINCT m FROM Movie m JOIN FETCH m.genres " +
-           "WHERE (:search IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "WHERE (:search IS NULL OR LOWER(m.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(m.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(m.director) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(m.cast) LIKE LOWER(CONCAT('%', :search, '%'))) " +
            "AND (:status IS NULL OR m.status = :status) " +
            "AND (:genre IS NULL OR EXISTS (SELECT g FROM m.genres g WHERE g.name = :genre))")
     List<Movie> findAllWithFilters(@Param("search") String search, @Param("status") String status, @Param("genre") String genre);

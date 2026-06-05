@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { STRINGS } from "@/constants/strings";
 import { movies as moviesApi, type MovieDto } from "@/lib/api";
 import { MovieCard } from "@/components/MovieCard";
@@ -23,43 +23,38 @@ type StatusFilter = "all" | "now" | "soon";
 
 function MoviesPage() {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [list, setList] = useState<MovieDto[]>([]);
+  const [allMovies, setAllMovies] = useState<MovieDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [q]);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const data = await moviesApi.list();
-        if (!cancelled) setList(data);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    const params: { status?: string; genre?: string; search?: string } = {};
+    if (statusFilter !== "all") params.status = statusFilter;
+    if (genre) params.genre = genre;
+    if (debouncedQ.trim()) params.search = debouncedQ.trim();
+
+    setLoading(true);
+    moviesApi
+      .list(params)
+      .then((data) => { if (!cancelled) { setList(data); if (!debouncedQ && !genre && statusFilter === "all") setAllMovies(data); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [debouncedQ, genre, statusFilter]);
 
   const genres = useMemo(
-    () => Array.from(new Set(list.flatMap((m) => m.genres.map((g) => g.name)))),
-    [list],
+    () => Array.from(new Set(allMovies.flatMap((m) => m.genres.map((g) => g.name)))),
+    [allMovies],
   );
-
-  const filtered = useMemo(() => {
-    return list.filter((m) => {
-      const genreNames = m.genres.map((g) => g.name);
-      const matchQ =
-        !q ||
-        m.title.toLowerCase().includes(q.toLowerCase()) ||
-        genreNames.join(" ").toLowerCase().includes(q.toLowerCase());
-      const matchG = !genre || genreNames.includes(genre);
-      const matchStatus = statusFilter === "all" || m.status === statusFilter;
-      return matchQ && matchG && matchStatus;
-    });
-  }, [q, genre, statusFilter, list]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-12 sm:px-6 lg:px-8">
@@ -120,13 +115,13 @@ function MoviesPage() {
             />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : list.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-16 text-center text-muted-foreground">
           {STRINGS.movies.noResults}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((m, i) => (
+          {list.map((m, i) => (
             <MovieCard key={m.id} movie={m} index={i} />
           ))}
         </div>

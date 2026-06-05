@@ -45,7 +45,7 @@ public class MovieService {
                     StringUtils.hasText(status) ? status : null,
                     StringUtils.hasText(genre) ? genre : null);
         } else if (StringUtils.hasText(search)) {
-            movies = movieRepository.findByIsDeletedFalseAndTitleContainingIgnoreCase(search);
+            movies = movieRepository.findBySearchQuery(search);
         } else if (StringUtils.hasText(status) && StringUtils.hasText(genre)) {
             movies = movieRepository.findByIsDeletedFalseAndStatusAndGenresName(status, genre);
         } else if (StringUtils.hasText(status)) {
