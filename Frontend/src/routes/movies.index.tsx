@@ -19,9 +19,12 @@ export const Route = createFileRoute("/movies/")({
   component: MoviesPage,
 });
 
+type StatusFilter = "all" | "now" | "soon";
+
 function MoviesPage() {
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [list, setList] = useState<MovieDto[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,9 +56,10 @@ function MoviesPage() {
         m.title.toLowerCase().includes(q.toLowerCase()) ||
         genreNames.join(" ").toLowerCase().includes(q.toLowerCase());
       const matchG = !genre || genreNames.includes(genre);
-      return matchQ && matchG;
+      const matchStatus = statusFilter === "all" || m.status === statusFilter;
+      return matchQ && matchG && matchStatus;
     });
-  }, [q, genre, list]);
+  }, [q, genre, statusFilter, list]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-12 sm:px-6 lg:px-8">
@@ -84,9 +88,20 @@ function MoviesPage() {
             className="h-12 w-full rounded-full border border-border bg-card/40 pl-11 pr-4 text-sm outline-none transition-all focus:border-accent focus:bg-card"
           />
         </div>
+
+        {/* Status filter */}
+        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+          {(["all", "now", "soon"] as StatusFilter[]).map((s) => (
+            <Chip key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
+              {s === "all" ? "All" : s === "now" ? "Now Showing" : "Coming Soon"}
+            </Chip>
+          ))}
+        </div>
+
+        {/* Genre filter */}
         <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
           <Chip active={!genre} onClick={() => setGenre(null)}>
-            All
+            All Genres
           </Chip>
           {genres.map((g) => (
             <Chip key={g} active={genre === g} onClick={() => setGenre(g)}>
