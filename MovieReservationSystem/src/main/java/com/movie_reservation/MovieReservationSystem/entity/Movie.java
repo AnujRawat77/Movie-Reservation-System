@@ -50,7 +50,7 @@ public class Movie {
 
     private String director;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "movie_cast", columnDefinition = "TEXT")
     private String cast;
 
     private String censorRating; // G, PG, PG-13, R, NC-17
