@@ -29,7 +29,7 @@ function MoviesPage() {
   const [list, setList] = useState<MovieDto[]>([]);
   const [allMovies, setAllMovies] = useState<MovieDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     debounceRef.current = setTimeout(() => setDebouncedQ(q), 300);
