@@ -153,21 +153,13 @@ export function Navbar() {
                 <ProfileMenu />
               </div>
             ) : (
-              <>
-                <Link
-                  to={ROUTES.login}
-                  className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:block"
-                >
-                  {STRINGS.nav.login}
+              <div className="hidden md:block">
+                <Link to={ROUTES.signup}>
+                  <HammerButton size="sm" variant="gold">
+                    {STRINGS.nav.signup}
+                  </HammerButton>
                 </Link>
-                <div className="hidden md:block">
-                  <Link to={ROUTES.signup}>
-                    <HammerButton size="sm" variant="gold">
-                      {STRINGS.nav.signup}
-                    </HammerButton>
-                  </Link>
-                </div>
-              </>
+              </div>
             )}
 
             {/* Mobile profile icon when signed in */}
@@ -227,16 +219,11 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <Link to={ROUTES.login} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
-                  {STRINGS.nav.login}
-                </Link>
-                <Link to={ROUTES.signup} onClick={() => setOpen(false)}>
-                  <HammerButton size="sm" variant="gold" className="mt-2 w-full">
-                    {STRINGS.nav.signup}
-                  </HammerButton>
-                </Link>
-              </>
+              <Link to={ROUTES.signup} onClick={() => setOpen(false)}>
+                <HammerButton size="sm" variant="gold" className="mt-2 w-full">
+                  {STRINGS.nav.signup}
+                </HammerButton>
+              </Link>
             )}
           </div>
         </motion.div>

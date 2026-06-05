@@ -42,6 +42,7 @@ function SeatSelection() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const holdRef = useRef<SeatHoldDto | null>(null);
+  const proceedingToPaymentRef = useRef(false);
   holdRef.current = hold;
 
   useEffect(() => {
@@ -132,9 +133,10 @@ function SeatSelection() {
     return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
   }, [hold?.holdId, hold?.status]);
 
-  // Release hold on page leave
+  // Release hold on page leave (skip if navigating to payment confirmation)
   useEffect(() => {
     return () => {
+      if (proceedingToPaymentRef.current) return;
       const current = holdRef.current;
       if (current && current.status === "ACTIVE") {
         holdsApi.release(current.holdId).catch(() => {});
@@ -223,6 +225,7 @@ function SeatSelection() {
       setHold(null);
       return;
     }
+    proceedingToPaymentRef.current = true;
     navigate({ to: `/booking/confirm/${hold.holdId}` });
   };
 
