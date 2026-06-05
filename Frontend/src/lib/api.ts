@@ -140,7 +140,11 @@ export function getToken(): string | null {
 
 export function setToken(token: string) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(TOKEN_KEY, token);
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // localStorage may be unavailable (private mode / storage quota)
+  }
 }
 
 export function clearToken() {

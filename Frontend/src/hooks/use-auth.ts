@@ -21,8 +21,12 @@ function read(): AuthUser | null {
 }
 
 export function signIn(user: AuthUser, token?: string) {
-  localStorage.setItem(KEY, JSON.stringify(user));
-  if (token) setToken(token);
+  try {
+    localStorage.setItem(KEY, JSON.stringify(user));
+    if (token) setToken(token);
+  } catch (e) {
+    console.warn("[signIn] localStorage unavailable:", e);
+  }
   window.dispatchEvent(new Event("cinereserve:auth-change"));
 }
 

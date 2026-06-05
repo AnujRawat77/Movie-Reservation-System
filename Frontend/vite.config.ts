@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      port: 5173, // Use a fixed port so it never conflicts with Spring Boot on 8080
+    },
+  },
 });

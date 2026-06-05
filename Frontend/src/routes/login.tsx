@@ -42,10 +42,15 @@ function LoginPage() {
         result.token,
       );
       toast.success("Signed in successfully");
-      navigate({ to: "/" });
+      await navigate({ to: "/" });
     } catch (err) {
+      console.error("[Login] error:", err);
       const message =
-        err instanceof ApiError ? err.message : "Sign in failed";
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Sign in failed";
       toast.error(message);
     } finally {
       setIsLoading(false);
