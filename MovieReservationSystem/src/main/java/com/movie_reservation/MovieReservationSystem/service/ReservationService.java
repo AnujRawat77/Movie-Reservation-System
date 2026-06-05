@@ -12,6 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
+
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,6 +33,15 @@ public class ReservationService {
     private final SeatRepository seatRepository;
     private final UserRepository userRepository;
     private final SeatHoldService seatHoldService;
+
+    @Value("${reservation.refund.full-hours:24}")
+    private int fullRefundHours;
+
+    @Value("${reservation.refund.partial-hours:2}")
+    private int partialRefundHours;
+
+    @Value("${reservation.refund.partial-percent:50}")
+    private int partialRefundPercent;
 
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, String userEmail) {
@@ -65,7 +78,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(UUID id, String email, boolean isAdmin) {
+    public ReservationResponse cancelReservation(UUID id, String email, boolean isAdmin) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation not found: " + id));
 
@@ -77,13 +90,33 @@ public class ReservationService {
             throw new BusinessException("ALREADY_CANCELLED", "Reservation is already cancelled");
         }
 
-        if (!reservation.getShowtime().getStartTime().isAfter(LocalDateTime.now())) {
+        LocalDateTime showStart = reservation.getShowtime().getStartTime();
+        if (!showStart.isAfter(LocalDateTime.now())) {
             throw new BusinessException("SHOWTIME_PAST", "Cannot cancel a reservation for a past showtime");
         }
 
+        long hoursUntilShow = Duration.between(LocalDateTime.now(), showStart).toHours();
+        int refundPercent;
+        if (hoursUntilShow >= fullRefundHours) {
+            refundPercent = 100;
+        } else if (hoursUntilShow >= partialRefundHours) {
+            refundPercent = partialRefundPercent;
+        } else {
+            refundPercent = 0;
+        }
+
+        BigDecimal refundAmount = reservation.getTotalAmount()
+                .multiply(BigDecimal.valueOf(refundPercent))
+                .divide(BigDecimal.valueOf(100));
+
         reservation.setStatus(ReservationStatus.CANCELLED);
+        reservation.setCancelledAt(LocalDateTime.now());
+        reservation.setRefundPercentage(refundPercent);
+        reservation.setRefundAmount(refundAmount);
         reservationRepository.save(reservation);
-        log.info("Cancelled reservation id={} by user={}", id, email);
+
+        log.info("Cancelled reservation id={} by user={}, refund={}% (${})", id, email, refundPercent, refundAmount);
+        return toResponse(reservation, reservation.getReservationSeats());
     }
 
     public List<ReservationResponse> getAllReservations() {
@@ -120,6 +153,9 @@ public class ReservationService {
                 .status(reservation.getStatus())
                 .totalAmount(reservation.getTotalAmount())
                 .createdAt(reservation.getCreatedAt())
+                .cancelledAt(reservation.getCancelledAt())
+                .refundAmount(reservation.getRefundAmount())
+                .refundPercentage(reservation.getRefundPercentage())
                 .build();
     }
 }

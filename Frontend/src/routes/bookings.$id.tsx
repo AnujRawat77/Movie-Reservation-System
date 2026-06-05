@@ -112,9 +112,12 @@ function BookingDetailPage() {
     if (!reservation) return;
     setCancelling(true);
     try {
-      await reservationsApi.cancel(reservation.id);
-      toast.success("Reservation cancelled");
-      setReservation({ ...reservation, status: "CANCELLED" });
+      const updated = await reservationsApi.cancel(reservation.id);
+      const refundMsg = updated.refundPercentage
+        ? `Refund: $${Number(updated.refundAmount).toFixed(2)} (${updated.refundPercentage}%)`
+        : "No refund (less than 2 hours before showtime)";
+      toast.success(`Reservation cancelled. ${refundMsg}`);
+      setReservation(updated);
     } catch (e) {
       toast.error(e instanceof ApiError ? e.message : "Cancel failed");
     } finally {
@@ -261,6 +264,22 @@ function BookingDetailPage() {
               <div>Booked on {formatBookedOn(reservation.createdAt)}</div>
             </div>
           </div>
+
+          {reservation.status === "CANCELLED" && reservation.refundAmount != null && (
+            <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Refund ({reservation.refundPercentage}%)</span>
+                <span className="font-medium text-amber-400">
+                  ${Number(reservation.refundAmount).toFixed(2)}
+                </span>
+              </div>
+              {reservation.cancelledAt && (
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Cancelled on {formatBookedOn(reservation.cancelledAt)}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}

@@ -39,6 +39,15 @@ public class Reservation {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private LocalDateTime cancelledAt;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal refundAmount;
+
+    private Integer refundPercentage;
+
+    private String cancellationReason;
+
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
     @Builder.Default
     private List<ReservationSeat> reservationSeats = new ArrayList<>();

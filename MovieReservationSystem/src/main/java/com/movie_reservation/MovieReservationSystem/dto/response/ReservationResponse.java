@@ -27,6 +27,9 @@ public class ReservationResponse {
     private String status;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;
+    private LocalDateTime cancelledAt;
+    private BigDecimal refundAmount;
+    private Integer refundPercentage;
 
     public record SeatInfo(String rowLabel, int seatNumber, String seatType) {}
 }

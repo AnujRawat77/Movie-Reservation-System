@@ -48,13 +48,13 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> cancelReservation(
+    public ResponseEntity<ApiResponse<ReservationResponse>> cancelReservation(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
         boolean isAdmin = userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(UserRole.ROLE_ADMIN));
-        reservationService.cancelReservation(id, userDetails.getUsername(), isAdmin);
-        return ResponseEntity.ok(ApiResponse.success(null, "Reservation cancelled successfully"));
+        ReservationResponse response = reservationService.cancelReservation(id, userDetails.getUsername(), isAdmin);
+        return ResponseEntity.ok(ApiResponse.success(response, "Reservation cancelled successfully"));
     }
 
     @GetMapping

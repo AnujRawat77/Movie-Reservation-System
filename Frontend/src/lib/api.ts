@@ -113,6 +113,9 @@ export type ReservationDto = {
   status: "CONFIRMED" | "CANCELLED";
   totalAmount: number;
   createdAt: string;
+  cancelledAt: string | null;
+  refundAmount: number | null;
+  refundPercentage: number | null;
 };
 
 export type AuthDto = {
@@ -274,7 +277,7 @@ export const reservations = {
   me: () => request<ReservationDto[]>("/api/reservations/me"),
   get: (id: string) => request<ReservationDto>(`/api/reservations/${id}`),
   cancel: (id: string) =>
-    request<void>(`/api/reservations/${id}`, { method: "DELETE" }),
+    request<ReservationDto>(`/api/reservations/${id}`, { method: "DELETE" }),
 };
 
 // ---------- Reviews ----------
