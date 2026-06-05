@@ -46,6 +46,15 @@ public class Movie {
 
     private String releaseDate; // nullable, e.g. "Dec 12"
 
+    private String trailerUrl;
+
+    private String director;
+
+    @Column(columnDefinition = "TEXT")
+    private String cast;
+
+    private String censorRating; // G, PG, PG-13, R, NC-17
+
     @Column(nullable = false)
     @Builder.Default
     private boolean isDeleted = false;

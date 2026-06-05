@@ -88,6 +88,10 @@ public class MovieService {
                 .synopsis(request.getSynopsis())
                 .status(request.getStatus())
                 .releaseDate(request.getReleaseDate())
+                .trailerUrl(request.getTrailerUrl())
+                .director(request.getDirector())
+                .cast(request.getCast())
+                .censorRating(request.getCensorRating())
                 .genres(genres)
                 .build();
 
@@ -113,6 +117,10 @@ public class MovieService {
         movie.setSynopsis(request.getSynopsis());
         movie.setStatus(request.getStatus());
         movie.setReleaseDate(request.getReleaseDate());
+        movie.setTrailerUrl(request.getTrailerUrl());
+        movie.setDirector(request.getDirector());
+        movie.setCast(request.getCast());
+        movie.setCensorRating(request.getCensorRating());
         movie.setGenres(genres);
 
         movie = movieRepository.save(movie);
@@ -167,6 +175,10 @@ public class MovieService {
                 .status(movie.getStatus())
                 .releaseDate(movie.getReleaseDate())
                 .deleted(movie.isDeleted())
+                .trailerUrl(movie.getTrailerUrl())
+                .director(movie.getDirector())
+                .cast(movie.getCast())
+                .censorRating(movie.getCensorRating())
                 .genres(genreResponses)
                 .showtimes(showtimeResponses)
                 .build();

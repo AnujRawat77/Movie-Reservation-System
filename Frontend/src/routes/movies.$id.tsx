@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, Globe, Star } from "lucide-react";
+import { ArrowLeft, Clock, Globe, Play, Star, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   movies as moviesApi,
@@ -143,9 +143,36 @@ function MovieDetail() {
               ))}
             </div>
 
-            <p className="mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground">
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              {movie.censorRating && (
+                <span className="rounded border border-border px-2 py-0.5 text-xs font-semibold uppercase tracking-widest">
+                  {movie.censorRating}
+                </span>
+              )}
+              {movie.director && (
+                <span>Dir. <span className="text-foreground">{movie.director}</span></span>
+              )}
+              {movie.cast && (
+                <span className="flex items-center gap-1">
+                  <Users className="h-3.5 w-3.5" />
+                  {movie.cast}
+                </span>
+              )}
+            </div>
+
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
               {movie.synopsis}
             </p>
+
+            {movie.trailerUrl && (
+              <div className="mt-5">
+                <a href={movie.trailerUrl} target="_blank" rel="noopener noreferrer">
+                  <HammerButton variant="outline" size="sm">
+                    <Play className="h-4 w-4 fill-current" /> Watch Trailer
+                  </HammerButton>
+                </a>
+              </div>
+            )}
 
             <div className="mt-10 rounded-2xl border border-border bg-card/60 p-6">
               <h2 className="mb-4 font-display text-2xl tracking-wider">

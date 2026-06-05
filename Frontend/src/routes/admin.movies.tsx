@@ -29,7 +29,7 @@ export const Route = createFileRoute("/admin/movies")({ component: AdminMovies }
 const emptyForm: MovieFormPayload = {
   title: "", tagline: "", description: "", posterUrl: "", durationMinutes: 120,
   rating: 7.0, year: 2026, language: "English", synopsis: "", status: "now",
-  releaseDate: null, genreIds: [],
+  releaseDate: null, trailerUrl: null, director: null, cast: null, censorRating: null, genreIds: [],
 };
 
 function AdminMovies() {
@@ -58,6 +58,8 @@ function AdminMovies() {
       posterUrl: m.posterUrl || "", durationMinutes: m.durationMinutes,
       rating: m.rating, year: m.year, language: m.language, synopsis: m.synopsis,
       status: m.status, releaseDate: m.releaseDate || null,
+      trailerUrl: m.trailerUrl || null, director: m.director || null,
+      cast: m.cast || null, censorRating: m.censorRating || null,
       genreIds: m.genres.map((g) => g.id),
     });
     setOpen(true);
@@ -217,6 +219,29 @@ function AdminMovies() {
             <div className="sm:col-span-2">
               <label className="text-xs text-muted-foreground">Poster URL</label>
               <Input value={form.posterUrl} onChange={(e) => setForm({ ...form, posterUrl: e.target.value })} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs text-muted-foreground">Trailer URL</label>
+              <Input value={form.trailerUrl || ""} onChange={(e) => setForm({ ...form, trailerUrl: e.target.value || null })} placeholder="https://youtube.com/watch?v=..." />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Director</label>
+              <Input value={form.director || ""} onChange={(e) => setForm({ ...form, director: e.target.value || null })} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Censor Rating</label>
+              <Select value={form.censorRating || ""} onValueChange={(v) => setForm({ ...form, censorRating: v || null })}>
+                <SelectTrigger><SelectValue placeholder="Select rating" /></SelectTrigger>
+                <SelectContent>
+                  {["G", "PG", "PG-13", "R", "NC-17"].map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs text-muted-foreground">Cast (comma-separated)</label>
+              <Input value={form.cast || ""} onChange={(e) => setForm({ ...form, cast: e.target.value || null })} placeholder="Actor 1, Actor 2, ..." />
             </div>
             <div className="sm:col-span-2">
               <label className="text-xs text-muted-foreground">Synopsis</label>

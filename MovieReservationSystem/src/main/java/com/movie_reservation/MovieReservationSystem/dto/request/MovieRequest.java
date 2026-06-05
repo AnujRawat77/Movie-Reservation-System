@@ -39,6 +39,16 @@ public class MovieRequest {
 
     private String releaseDate;
 
+    @URL(message = "Trailer URL must be a valid URL")
+    private String trailerUrl;
+
+    private String director;
+
+    private String cast;
+
+    @Pattern(regexp = "^(G|PG|PG-13|R|NC-17)$", message = "Censor rating must be G, PG, PG-13, R, or NC-17")
+    private String censorRating;
+
     @NotNull(message = "Genre IDs are required")
     private List<Long> genreIds;
 }

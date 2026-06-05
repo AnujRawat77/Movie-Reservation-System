@@ -26,6 +26,10 @@ public class MovieResponse {
     private String status;
     private String releaseDate;
     private boolean deleted;
+    private String trailerUrl;
+    private String director;
+    private String cast;
+    private String censorRating;
     private List<GenreResponse> genres;
     private List<ShowtimeResponse> showtimes; // null for list view, populated for detail view
 }

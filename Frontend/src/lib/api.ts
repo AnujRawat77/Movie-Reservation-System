@@ -55,6 +55,10 @@ export type MovieDto = {
   synopsis: string;
   status: "now" | "soon";
   releaseDate?: string | null;
+  trailerUrl?: string | null;
+  director?: string | null;
+  cast?: string | null;
+  censorRating?: string | null;
   genres: Genre[];
   showtimes?: ShowtimeDto[] | null;
 };
@@ -302,6 +306,10 @@ export type MovieFormPayload = {
   synopsis: string;
   status: "now" | "soon";
   releaseDate?: string | null;
+  trailerUrl?: string | null;
+  director?: string | null;
+  cast?: string | null;
+  censorRating?: string | null;
   genreIds: number[];
 };
 
