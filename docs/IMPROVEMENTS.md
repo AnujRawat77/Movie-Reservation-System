@@ -7,12 +7,14 @@
 ## 1. Critical Fixes (Do These First)
 
 ### Security
+
 - [ ] **Move JWT secret to environment variable** — `application.properties` has `jwt.secret` hardcoded in plain text; exposed in version control. Replace with `${JWT_SECRET}` env var.
 - [ ] **Add rate limiting on auth endpoints** — `/api/auth/login` and `/api/auth/register` have no brute-force protection. Add `spring-security-ratelimit` or Bucket4j filter.
 - [ ] **Implement refresh token flow** — Currently a single 24-hour JWT with no refresh. Add short-lived access token (15 min) + long-lived refresh token (7 days) with rotation.
 - [ ] **Add server-side logout / token blacklist** — Logged-out tokens remain valid until expiry. Add a blacklist (Redis `SET` or DB table) and a `/api/auth/logout` endpoint.
 
 ### Database / Business Logic
+
 - [ ] **Add UNIQUE constraint on `(seat_id, showtime_id)` in `reservation_seats`** — No SQL-level constraint exists to prevent double-booking. A race condition between two concurrent requests can book the same seat twice. Add `@UniqueConstraint` to `ReservationSeat` entity.
 - [ ] **Specify `@Transactional` isolation level in `ReservationService`** — Currently uses default isolation. Set `Isolation.REPEATABLE_READ` (or `SERIALIZABLE`) on `createReservation()` to prevent phantom reads under concurrency.
 - [ ] **Switch from H2 in-memory to file-based (dev) or PostgreSQL (prod)** — `jdbc:h2:mem:moviedb` loses all data on restart. Use `jdbc:h2:file:./data/moviedb` for dev and `postgresql` for production.
@@ -23,26 +25,28 @@
 ## 2. Bugs & Code Smells
 
 ### High Risk
-- [x] **Fix N+1 query in `MovieService.getAllMovies()`** — Each movie triggers a separate query to load genres. Use `@Query("SELECT m FROM Movie m JOIN FETCH m.genres")` in the repository.
-- [x] **Fix N+1 query in `ReportService.getTopMovies()`** — Revenue queried per-movie in a loop. Replace with a single aggregation query using `GROUP BY`.
-- [x] **Fix filter logic pushed to Java streams in `MovieService`** — Status/genre filtering done in Java after fetching all movies. Push filters to JPQL `WHERE` clause via `@Query` or `Specification`.
-- [x] **Fix filter logic in `ReportService.getRevenue()`** — Loads all reservations then filters in Java. Replace with a single SQL aggregation query.
-- [x] **Add null-safety on `rs.getReservation()` in `ShowtimeService.getAvailableSeats()`** — `rs.getReservation()` could be `null` if orphaned `ReservationSeat` records exist, causing NPE in the stream filter.
+
+- [X] **Fix N+1 query in `MovieService.getAllMovies()`** — Each movie triggers a separate query to load genres. Use `@Query("SELECT m FROM Movie m JOIN FETCH m.genres")` in the repository.
+- [X] **Fix N+1 query in `ReportService.getTopMovies()`** — Revenue queried per-movie in a loop. Replace with a single aggregation query using `GROUP BY`.
+- [X] **Fix filter logic pushed to Java streams in `MovieService`** — Status/genre filtering done in Java after fetching all movies. Push filters to JPQL `WHERE` clause via `@Query` or `Specification`.
+- [X] **Fix filter logic in `ReportService.getRevenue()`** — Loads all reservations then filters in Java. Replace with a single SQL aggregation query.
+- [X] **Add null-safety on `rs.getReservation()` in `ShowtimeService.getAvailableSeats()`** — `rs.getReservation()` could be `null` if orphaned `ReservationSeat` records exist, causing NPE in the stream filter.
 
 ### Medium Risk (Code Smells)
-- [x] **Replace hardcoded role strings with an enum or constants** — `"ROLE_ADMIN"`, `"ROLE_USER"`, `"USER"`, `"ADMIN"` appear as raw strings across `SecurityConfig`, `UserDetailsServiceImpl`, `ReservationController`. Define a `Role` enum.
-- [x] **Replace hardcoded status strings with enums** — `"CONFIRMED"`, `"CANCELLED"`, `"SCHEDULED"`, `"PREMIUM"`, `"REGULAR"` scattered across services. Define `ReservationStatus`, `ShowtimeStatus`, `SeatType` enums.
-- [x] **Extract hardcoded premium seat multiplier `1.5`** — `ReservationService` multiplies price by `new BigDecimal("1.5")` directly. Move to `application.properties` as `reservation.premium-seat-multiplier`.
-- [x] **Extract hardcoded 15-minute showtime buffer** — `ShowtimeService` uses `.plusMinutes(15)` in two places. Move to `application.properties` as `showtime.buffer-minutes`.
-- [x] **Fix hardcoded row label array in `HallService`** — `String[] rowLabels = {"A","B",...,"T"}` limits halls to 20 rows. Generate dynamically from alphabet.
-- [x] **Fix hardcoded premium row designations** — `row.equals("D") || row.equals("E")` in `HallService` and `DataSeeder`. Make configurable per hall or per seat type.
-- [x] **Add `@Slf4j` logging to all services** — Zero logging exists in any service class. Impossible to debug production issues without it.
-- [x] **Add `@URL` validation on `MovieRequest.posterUrl`** — No format validation on the poster URL field.
-- [x] **Add regex/enum validation on `UserRoleRequest.role`** — Field has `@NotBlank` but accepts any string. Add `@Pattern(regexp = "^(USER|ADMIN)$")`.
-- [x] **Fix inconsistent error response format** — `GlobalExceptionHandler` returns `Map<String, Object>` while controllers use `ApiResponse<T>`. Unify to one format.
-- [x] **Return array of field errors from `GlobalExceptionHandler`** — Validation errors are joined into a single comma-separated string, making them hard to parse on the frontend.
-- [x] **Add timestamp to error responses** — No `timestamp` field in error payloads, making log correlation hard.
-- [x] **Log stack trace in generic exception handler** — The catch-all `Exception` handler in `GlobalExceptionHandler` doesn't log the stack trace.
+
+- [X] **Replace hardcoded role strings with an enum or constants** — `"ROLE_ADMIN"`, `"ROLE_USER"`, `"USER"`, `"ADMIN"` appear as raw strings across `SecurityConfig`, `UserDetailsServiceImpl`, `ReservationController`. Define a `Role` enum.
+- [X] **Replace hardcoded status strings with enums** — `"CONFIRMED"`, `"CANCELLED"`, `"SCHEDULED"`, `"PREMIUM"`, `"REGULAR"` scattered across services. Define `ReservationStatus`, `ShowtimeStatus`, `SeatType` enums.
+- [X] **Extract hardcoded premium seat multiplier `1.5`** — `ReservationService` multiplies price by `new BigDecimal("1.5")` directly. Move to `application.properties` as `reservation.premium-seat-multiplier`.
+- [X] **Extract hardcoded 15-minute showtime buffer** — `ShowtimeService` uses `.plusMinutes(15)` in two places. Move to `application.properties` as `showtime.buffer-minutes`.
+- [X] **Fix hardcoded row label array in `HallService`** — `String[] rowLabels = {"A","B",...,"T"}` limits halls to 20 rows. Generate dynamically from alphabet.
+- [X] **Fix hardcoded premium row designations** — `row.equals("D") || row.equals("E")` in `HallService` and `DataSeeder`. Make configurable per hall or per seat type.
+- [X] **Add `@Slf4j` logging to all services** — Zero logging exists in any service class. Impossible to debug production issues without it.
+- [X] **Add `@URL` validation on `MovieRequest.posterUrl`** — No format validation on the poster URL field.
+- [X] **Add regex/enum validation on `UserRoleRequest.role`** — Field has `@NotBlank` but accepts any string. Add `@Pattern(regexp = "^(USER|ADMIN)$")`.
+- [X] **Fix inconsistent error response format** — `GlobalExceptionHandler` returns `Map<String, Object>` while controllers use `ApiResponse<T>`. Unify to one format.
+- [X] **Return array of field errors from `GlobalExceptionHandler`** — Validation errors are joined into a single comma-separated string, making them hard to parse on the frontend.
+- [X] **Add timestamp to error responses** — No `timestamp` field in error payloads, making log correlation hard.
+- [X] **Log stack trace in generic exception handler** — The catch-all `Exception` handler in `GlobalExceptionHandler` doesn't log the stack trace.
 
 ---
 
@@ -84,57 +88,64 @@
 ## 6. New Features to Add
 
 ### Core Booking Improvements
-- [x] **Seat hold / temporary reservation** — Reserve seats for 10–15 minutes while user completes payment. Auto-release on timeout. Needs a background scheduler (`@Scheduled`) or Redis TTL.
+
+- [X] **Seat hold / temporary reservation** — Reserve seats for 10–15 minutes while user completes payment. Auto-release on timeout. Needs a background scheduler (`@Scheduled`) or Redis TTL.
 - [ ] **Reservation modification** — Allow users to change seats or showtime on an existing booking (with business rules on cutoff time).
 - [ ] **Waitlist system** — When a showtime is full, allow users to join a queue. Auto-notify (email/in-app) and convert to booking when a seat is released.
-- [x] **Cancellation policy & refund tracking** — Define policy (full refund > 24h, 50% < 24h, no refund < 2h). Track `refundAmount`, `refundStatus`, `cancellationReason` on `Reservation`.
+- [X] **Cancellation policy & refund tracking** — Define policy (full refund > 24h, 50% < 24h, no refund < 2h). Track `refundAmount`, `refundStatus`, `cancellationReason` on `Reservation`.
 
 ### Payment
+
 - [ ] **Payment integration (Stripe / Razorpay)** — Currently no payment processing. Add a payment service with webhook handling for confirmation and refunds.
 - [ ] **Invoice / receipt PDF generation** — Generate a downloadable PDF receipt per booking using iText or JasperReports.
 - [ ] **Discount codes / coupons** — Add a `Coupon` entity with code, discount type (fixed/percent), expiry, and per-user usage limits.
 
 ### Notifications
+
 - [ ] **Email confirmation on booking** — Send booking confirmation email with seat details via Spring Mail (`spring-boot-starter-mail` + async `@EventListener`).
 - [ ] **Email on cancellation** — Send cancellation and refund status email.
 - [ ] **Password reset via email** — `/api/auth/forgot-password` → email with time-limited token → `/api/auth/reset-password`.
 - [ ] **Upcoming showtime reminder** — Email reminder 2 hours before showtime using `@Scheduled`.
 
 ### Movie & Content
-- [x] **Movie ratings & reviews** — Add `Review` entity (user, movie, rating 1–5, comment, timestamp). Expose GET/POST `/api/movies/{id}/reviews`.
-- [x] **Movie search & advanced filters** — Full-text search on title/description, filter by genre, rating, language, release date range.
-- [x] **Trailer / media links** — Add `trailerUrl`, `language`, `censorRating` (G/PG/PG-13/R), `director`, `cast` fields to `Movie`.
+
+- [X] **Movie ratings & reviews** — Add `Review` entity (user, movie, rating 1–5, comment, timestamp). Expose GET/POST `/api/movies/{id}/reviews`.
+- [X] **Movie search & advanced filters** — Full-text search on title/description, filter by genre, rating, language, release date range.
+- [X] **Trailer / media links** — Add `trailerUrl`, `language`, `censorRating` (G/PG/PG-13/R), `director`, `cast` fields to `Movie`.
 - [ ] **Upcoming movies / pre-booking** — Allow creating movies with `status=SOON` and let users register interest before showtimes are created.
 
 ### Admin & Analytics
-- [x] **Admin dashboard API** — Endpoints for daily/weekly/monthly sales, occupancy rate trends, top-performing movies/halls, revenue by genre.
-- [x] **Bulk showtime creation** — Create recurring showtimes (e.g., every day at 6pm for 2 weeks) in one API call.
-- [x] **User management** — Admin: suspend/activate users (`isActive` flag), view booking history per user.
-- [x] **Export reports** — Export revenue/occupancy reports as CSV or Excel (`Apache POI`).
+
+- [X] **Admin dashboard API** — Endpoints for daily/weekly/monthly sales, occupancy rate trends, top-performing movies/halls, revenue by genre.
+- [X] **Bulk showtime creation** — Create recurring showtimes (e.g., every day at 6pm for 2 weeks) in one API call.
+- [X] **User management** — Admin: suspend/activate users (`isActive` flag), view booking history per user.
+- [X] **Export reports** — Export revenue/occupancy reports as CSV or Excel (`Apache POI`).
 
 ### User Experience
-- [ ] **User profile** — Allow users to update name, phone, profile picture. Add `phone`, `address`, `profilePictureUrl` to `User`.
-- [ ] **Booking history with filters** — Filter `GET /api/reservations/me` by status, date range, movie title.
-- [ ] **Loyalty points system** — Award points per booking. Allow redemption for discounts. Needs `loyaltyPoints` on `User` and transaction log.
-- [ ] **Favorite movies / watchlist** — Users can bookmark movies. `GET /api/users/me/watchlist`, `POST/DELETE /api/movies/{id}/watchlist`.
+
+- [X] **User profile** — Allow users to update name, phone, profile picture. Add `phone`, `address`, `profilePictureUrl` to `User`.
+- [X] **Booking history with filters** — Filter `GET /api/reservations/me` by status, date range, movie title.
+- [X] **Loyalty points system** — Award points per booking. Allow redemption for discounts. Needs `loyaltyPoints` on `User` and transaction log.
+- [X] **Favorite movies / watchlist** — Users can bookmark movies. `GET /api/users/me/watchlist`, `POST/DELETE /api/movies/{id}/watchlist`.
 
 ### Hall & Seat Management
+
 - [ ] **Hall screen type** — Add `screenType` (2D / 3D / IMAX) and `soundSystem` (Dolby / THX) to `Hall`.
 - [ ] **Accessibility seat flags** — Add `handicapAccessible`, `wheelchairSpace` booleans to `Seat`.
-- [x] **Seat map visual API** — Endpoint that returns seat layout as a structured grid (row → seats) for the frontend seat picker.
+- [X] **Seat map visual API** — Endpoint that returns seat layout as a structured grid (row → seats) for the frontend seat picker.
 
 ---
 
 ## 7. Testing
 
-- [ ] **Unit tests for `ReservationService`** — Core business logic (pricing, seat validation, double-booking, status transitions) has zero test coverage.
-- [ ] **Unit tests for `AuthService`** — Test registration, login, duplicate email, wrong password paths.
-- [ ] **Unit tests for `ShowtimeService`** — Overlap detection logic is complex and untested.
-- [ ] **Unit tests for `HallService`** — Seat generation logic (row labels, premium designation) is untested.
-- [ ] **Integration tests for all controllers** — Use `@SpringBootTest` + `MockMvc` to test endpoint authorization, validation, and happy paths.
-- [x] **Concurrency test for double-booking** — Write a test that fires 2 concurrent reservation requests for the same seat and asserts only one succeeds.
-- [ ] **Repository query tests** — Test custom JPQL queries with `@DataJpaTest`.
-- [ ] **Security integration tests** — Test that unauthenticated / wrong-role requests return 401 / 403.
+- [X] **Unit tests for `ReservationService`** — Core business logic (pricing, seat validation, double-booking, status transitions) has zero test coverage.
+- [X] **Unit tests for `AuthService`** — Test registration, login, duplicate email, wrong password paths.
+- [X] **Unit tests for `ShowtimeService`** — Overlap detection logic is complex and untested.
+- [X] **Unit tests for `HallService`** — Seat generation logic (row labels, premium designation) is untested.
+- [X] **Integration tests for all controllers** — Use `@SpringBootTest` + `MockMvc` to test endpoint authorization, validation, and happy paths.
+- [X] **Concurrency test for double-booking** — Write a test that fires 2 concurrent reservation requests for the same seat and asserts only one succeeds.
+- [X] **Repository query tests** — Test custom JPQL queries with `@DataJpaTest`.
+- [X] **Security integration tests** — Test that unauthenticated / wrong-role requests return 401 / 403.
 
 ---
 
@@ -151,15 +162,15 @@
 
 > Core booking journey has zero UI test coverage. See `AutomationTests/` for existing tests.
 
-- [ ] **Booking creation flow** (`/booking/:showtimeId`) — seat selection, seat availability display, and submitting a reservation are entirely untested. Most critical user journey.
-- [ ] **Booking success / confirmation page** (`/booking/success/:id`) — no test verifies the post-booking confirmation screen.
-- [ ] **Actual signup flow** — existing test only checks if form fields exist; never submits the form and verifies a successful registration.
-- [ ] **User profile page** (`/profile`) — no tests at all.
-- [ ] **Admin genres page** (`/admin/genres`) — not covered in `admin.feature`.
-- [ ] **Admin halls page** (`/admin/halls`) — not covered in `admin.feature`.
-- [ ] **Admin showtimes page** (`/admin/showtimes`) — not covered in `admin.feature`.
-- [ ] **Admin reservations page** (`/admin/reservations`) — not covered in `admin.feature`.
-- [ ] **Movie detail page interactions** (`/movies/:id`) — page object exists but no feature scenario covers viewing showtimes, selecting a showtime, or navigating to booking.
+- [X] **Booking creation flow** (`/booking/:showtimeId`) — seat selection, seat availability display, and submitting a reservation are entirely untested. Most critical user journey.
+- [X] **Booking success / confirmation page** (`/booking/success/:id`) — no test verifies the post-booking confirmation screen.
+- [X] **Actual signup flow** — existing test only checks if form fields exist; never submits the form and verifies a successful registration.
+- [X] **User profile page** (`/profile`) — no tests at all.
+- [X] **Admin genres page** (`/admin/genres`) — not covered in `admin.feature`.
+- [X] **Admin halls page** (`/admin/halls`) — not covered in `admin.feature`.
+- [X] **Admin showtimes page** (`/admin/showtimes`) — not covered in `admin.feature`.
+- [X] **Admin reservations page** (`/admin/reservations`) — not covered in `admin.feature`.
+- [X] **Movie detail page interactions** (`/movies/:id`) — page object exists but no feature scenario covers viewing showtimes, selecting a showtime, or navigating to booking.
 
 ---
 
