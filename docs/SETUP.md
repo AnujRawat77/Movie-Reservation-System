@@ -216,7 +216,44 @@ services:
 volumes:
   postgres_data:
 \\\
-Run: \docker-compose up\
+Run: `docker-compose up`
+
 ---
-**Version**: 1.0.0
-**Last Updated**: May 31, 2026
+
+## Running Tests
+
+### Backend Unit & Integration Tests
+```bash
+cd MovieReservationSystem
+./mvnw test
+```
+
+### RestAssured API Tests (requires app running on :8080)
+```bash
+cd AutomationTests
+# Full suite
+mvn test -Dsuite=full
+
+# Smoke only
+mvn test -Dsuite=smoke
+
+# Regression
+mvn test -Dsuite=regression
+```
+
+### UI Automation Tests (requires Chrome + app running)
+```bash
+cd AutomationTests
+mvn test -Dsuite=ui-full
+```
+
+### Generate Allure Report
+```bash
+cd AutomationTests
+mvn allure:serve   # opens browser automatically
+```
+
+---
+
+**Version**: 1.1.0
+**Last Updated**: June 6, 2026

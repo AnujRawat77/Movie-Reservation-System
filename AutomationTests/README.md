@@ -1,10 +1,12 @@
-# 🧪 CineReserve — API Test Automation Suite
+# 🧪 CineReserve — Automated Test Suite
 
-> **500+ test cases** covering the entire Movie Reservation System REST API using **TestNG + RestAssured + Allure Reports**
+> **100+ test cases** across a 3-layer test pyramid: **RestAssured API tests**, **JUnit 5 unit + integration tests**, and **Selenium + Cucumber BDD UI tests** — all with **Allure HTML reporting**
 
 ---
 
 ## 📋 Test Suite Overview
+
+### RestAssured API Tests (TestNG)
 
 | Module | Test Class | Test Count |
 |--------|-----------|-----------|
@@ -13,12 +15,49 @@
 | Genres | GenreTests | **40** |
 | Halls | HallTests | **45** |
 | Showtimes | ShowtimeTests | **65** |
+| Seat Holds | SeatHoldTests | **50** |
 | Reservations | ReservationTests | **80** |
 | Users | UserTests | **40** |
 | Reports | ReportTests | **50** |
 | Security | SecurityTests | **55** |
 | Integration/E2E | EndToEndTests | **40** |
-| **TOTAL** | | **≥ 560** |
+| **API TOTAL** | | **≥ 610** |
+
+### JUnit 5 Unit Tests
+
+| Test Class | Coverage |
+|-----------|---------|
+| AuthServiceTest | register, login — success + failure paths |
+| ReservationServiceTest | create, cancel (full/partial refund), list |
+| ShowtimeServiceTest | create, overlap detection, getById |
+| HallServiceTest | create, update w/ and w/o future showtimes |
+
+### Spring Boot Integration Tests
+
+| Test Class | Coverage |
+|-----------|---------|
+| AuthControllerIntegrationTest | POST /api/auth/register + /login |
+| UserControllerIntegrationTest | GET/PUT /api/users/me |
+| ReservationControllerIntegrationTest | GET /api/reservations/me with filters |
+| SecurityIntegrationTest | 401/403 enforcement for all protected routes |
+| ReservationRepositoryTest | JPQL filter queries (status, date, title) |
+
+### Selenium + Cucumber BDD UI Tests
+
+| Feature File | Scenarios |
+|-------------|----------|
+| login.feature | Valid login, invalid credentials, redirect |
+| signup-flow.feature | Register, duplicate email |
+| home.feature | Landing page elements, navigation |
+| movie-detail.feature | Movie info, watchlist toggle |
+| booking-creation.feature | Seat grid, seat selection, hold creation |
+| booking-success.feature | Confirmation page, view bookings link |
+| bookings.feature | Filter bar, reservation list |
+| profile.feature | Display name, loyalty section |
+| admin-extended.feature | Admin nav, genres, reservations management |
+| admin-movies.feature | Movie CRUD from admin panel |
+| admin-halls.feature | Hall management |
+| admin-users.feature | Role changes |
 
 ---
 
@@ -268,9 +307,22 @@ feat: add comprehensive API test automation suite
 - TestNG + RestAssured + Allure Reports
 - Security, integration, and concurrency tests
 - Full CRUD coverage for all endpoints
+
+test: add UI automation test coverage
+- Selenium + Cucumber BDD across 12 feature files
+- Page Object pattern (LoginPage, HomePage, MoviePage, ProfilePage, etc.)
+- Allure HTML reports with screenshots on failure
+
+test: add unit tests for services
+- JUnit 5 + Mockito for AuthService, ReservationService, ShowtimeService, HallService
+
+test: add integration tests
+- @SpringBootTest MockMvc tests (Auth, User, Reservation controllers)
+- SecurityIntegrationTest (401/403 enforcement)
+- ReservationRepositoryTest (JPQL filter queries)
 ```
 
 ---
 
-**Author**: Anuj Rawat | **Version**: 1.0.0 | **Date**: May 31, 2026
+**Author**: Anuj Rawat | **Version**: 1.1.0 | **Date**: June 6, 2026
 

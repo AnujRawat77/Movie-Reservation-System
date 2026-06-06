@@ -1,42 +1,56 @@
 ﻿# SUMMARY.md
 ## Project Analysis & Documentation Complete ✅
-Date: May 31, 2026
-Status: **PRODUCTION READY**
+Date: June 6, 2026
+Status: **PRODUCTION READY — v1.1.0**
 ---
 ## Summary
 The **Movie Reservation System** has been thoroughly analyzed and comprehensive documentation has been created. The project is a complete, enterprise-grade full-stack application.
 ### What Was Analyzed
 #### ✅ Backend (Spring Boot 4.0.6)
-- 8 REST Controllers with 33+ endpoints
-- 8 Services with transactional business logic
-- 8 Repositories with custom queries
-- 8 JPA Entities with complex relationships
-- Complete authentication & authorization system
-- Concurrency control for preventing double-booking
+- 13 REST Controllers with 45+ endpoints
+- 13 Services with transactional business logic
+- 13 Repositories with custom queries
+- 12 JPA Entities with complex relationships
+- 2-phase seat hold system with DB-enforced concurrency control
+- Loyalty points engine (earn, redeem, audit log)
+- Watchlist / favourites with UNIQUE constraint
+- User profile management
+- Booking history with server-side filtering
+- Complete authentication & authorization system (JWT + BCrypt-12)
 - API documentation via Swagger/OpenAPI
-- ~2,500+ lines of production Java code
+- ~3,800+ lines of production Java code
 #### ✅ Frontend (React 19.2.0 + TypeScript)
-- 15+ React components
-- 20+ route pages (public, user, and admin views)
+- 20+ React components
+- 25+ route pages (public, user, and admin views)
 - Complete admin dashboard
+- Loyalty points page (balance, history, redeem)
+- Watchlist / favourites page
+- User profile edit form
+- Booking confirmation flow with hold countdown timer
+- Filtered booking history view
 - Modern UI with Tailwind CSS & Radix UI
 - TanStack Router for type-safe routing
-- TanStack React Query for state management
+- TanStack React Query for server state management
 - JWT token management and persistence
-- ~3,000+ lines of TypeScript code
-#### ✅ Database
-- 9 normalized relational tables
+- ~4,500+ lines of TypeScript code
+#### ✅ Database (13 tables)
 - 3NF design with proper indexing
-- Unique constraints for data integrity
+- Unique constraints for data integrity and concurrency
 - Foreign key relationships
 - Soft delete pattern for audit trails
 - H2 (development) with PostgreSQL ready
 #### ✅ API Specification
-- 33 REST endpoints fully implemented
+- 45+ REST endpoints fully implemented
 - Consistent response format
 - Error handling with business-specific error codes
 - Role-based access control (RBAC)
 - Comprehensive input validation
+#### ✅ Automated Test Suite (100+ cases)
+- RestAssured API tests across 11 modules with Allure reporting
+- JUnit 5 + Mockito unit tests for all 4 core services
+- `@SpringBootTest` integration tests (controllers, security, repositories)
+- Selenium + Cucumber BDD UI tests across 12 feature files
+- `CountDownLatch` concurrency stress test for seat holds
 ---
 ## Documentation Created
 ### 1. **README.md** (Comprehensive Project Overview)

@@ -25,11 +25,14 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - ✅ MovieController - Movie CRUD
 - ✅ GenreController - Genre management
 - ✅ ShowtimeController - Showtime scheduling
-- ✅ ReservationController - Booking management
+- ✅ ReservationController - Booking management (with status/date/title filters)
 - ✅ ReportController - Analytics & reports
-- ✅ UserController - User management
+- ✅ UserController - User profile management (`PUT /api/users/me`)
 - ✅ HallController - Theater management
-- **Total Endpoints**: 30+
+- ✅ SeatHoldController - 2-phase seat hold lifecycle
+- ✅ LoyaltyController - Points balance, redemption, history
+- ✅ WatchlistController - Movie favourites
+- **Total Endpoints**: 45+
 
 #### 3. Service Layer (8 total)
 
@@ -39,13 +42,16 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - ✅ ShowtimeService - Showtime scheduling
 - ✅ ReservationService - Atomic transactions, concurrency control
 - ✅ ReportService - Analytics queries
-- ✅ UserService - User management
+- ✅ UserService - User profile management
 - ✅ HallService - Hall management
+- ✅ SeatHoldService - Hold creation, confirmation, expiry cleanup (`@Scheduled`)
+- ✅ LoyaltyService - Points earning, redemption, audit log
+- ✅ WatchlistService - Watchlist CRUD
 - **Pattern**: Transactional services with business logic
 
 #### 4. Data Models (8 Entities)
 
-- ✅ User (authentication, roles)
+- ✅ User (authentication, roles, phone, address, loyalty points)
 - ✅ Movie (catalog, metadata)
 - ✅ Genre (categories)
 - ✅ Hall (theaters with seats)
@@ -53,6 +59,10 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - ✅ Showtime (movie schedules)
 - ✅ Reservation (bookings, UUID-based)
 - ✅ ReservationSeat (junction, double-booking prevention)
+- ✅ SeatHold (2-phase seat hold, TTL lifecycle)
+- ✅ SeatAllocation (per-seat DB lock with UNIQUE constraint)
+- ✅ LoyaltyTransaction (EARNED/REDEEMED audit log)
+- ✅ Watchlist (user favourites with UNIQUE(user_id, movie_id))
 
 #### 5. Repository Layer (8 Repositories)
 
@@ -62,8 +72,12 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - ✅ HallRepository
 - ✅ SeatRepository - Hall-based queries
 - ✅ ShowtimeRepository - Overlap detection
-- ✅ ReservationRepository - User/status filtering
+- ✅ ReservationRepository - User/status/date/title filtering (JPQL)
 - ✅ ReservationSeatRepository - Concurrency checks
+- ✅ SeatHoldRepository - Active hold lookup, TTL expiry
+- ✅ SeatAllocationRepository - Unique seat lock management
+- ✅ LoyaltyTransactionRepository - History ordered by date
+- ✅ WatchlistRepository - existsByUserIdAndMovieId, deleteByUserIdAndMovieId
 
 #### 6. Database Integration
 
@@ -77,7 +91,9 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 #### 7. Business Logic Implementation
 
 - ✅ Reservation transactions (atomic, all-or-nothing)
-- ✅ Concurrency control (double-booking prevention)
+- ✅ Concurrency control (2-phase hold with DB `UNIQUE` constraint on `seat_allocations`)
+- ✅ Hold expiry auto-cleanup (`@Scheduled(fixedDelay=60_000)`)
+- ✅ Loyalty points earning (10 pts / $1) and redemption with audit log
 - ✅ Showtime overlap detection
 - ✅ Premium seat pricing (1.5x multiplier)
 - ✅ Soft delete for movies
@@ -107,6 +123,12 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - ✅ Sample halls with seats
 - ✅ Sample showtimes
 - ✅ Test data for development
+
+#### 11. Concurrency Control (3-Layer Defense)
+
+- ✅ **Layer 1 — Pre-flight check**: `reservationSeatRepository.existsBySeatIdAndShowtimeIdAndReservationStatus()` fast-rejects confirmed seats before issuing a hold
+- ✅ **Layer 2 — DB constraint**: `UNIQUE(showtime_id, seat_id)` on `seat_allocations`; only one INSERT wins; concurrent INSERT → `DataIntegrityViolationException` → HTTP 409
+- ✅ **Layer 3 — Transaction scope**: entire `createHold()` is `@Transactional`; any exception rolls back all allocations, leaving no orphaned rows
 
 ---
 
@@ -195,9 +217,11 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 
 #### 9. User Features
 
-- ✅ View personal reservations
+- ✅ View personal reservations (with status / date / title filters)
 - ✅ Cancel reservations
-- ✅ User profile
+- ✅ User profile edit (name, phone, address)
+- ✅ Loyalty points balance, history, and redemption
+- ✅ Watchlist / movie favourites
 - ✅ Booking history
 
 #### 10. UI/UX
@@ -247,9 +271,32 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 ### Reservations (4 endpoints)
 
 - POST /api/reservations
-- GET /api/reservations/me
+- GET /api/reservations/me?status=&from=&to=&movie= (with server-side filters)
 - GET /api/reservations/{id}
 - DELETE /api/reservations/{id}
+
+### Seat Holds (5 endpoints)
+
+- POST /api/holds (create hold)
+- GET /api/holds/{holdId}
+- DELETE /api/holds/{holdId} (release)
+- POST /api/holds/{holdId}/refresh (extend TTL)
+- POST /api/holds/{holdId}/confirm (confirm → reservation)
+
+### User Profile & Loyalty (4 endpoints)
+
+- GET /api/users/me
+- PUT /api/users/me (update profile)
+- GET /api/users/me/loyalty/balance
+- GET /api/users/me/loyalty/history
+- POST /api/users/me/loyalty/redeem
+
+### Watchlist (3 endpoints)
+
+- GET /api/users/me/watchlist
+- POST /api/movies/{id}/watchlist
+- DELETE /api/movies/{id}/watchlist
+- GET /api/movies/{id}/watchlist/status
 
 ### Admin Reservations (1 endpoint)
 
@@ -258,6 +305,7 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 ### Users (3 endpoints)
 
 - GET /api/users/me
+- PUT /api/users/me (update profile) 
 - GET /api/users (Admin)
 - PATCH /api/users/{id}/role (Admin)
 
@@ -274,13 +322,13 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - GET /api/reports/revenue (Admin)
 - GET /api/reports/capacity/{showtimeId} (Admin)
 - GET /api/reports/top-movies (Admin)
-  **Total**: 33 REST endpoints
+  **Total**: 45+ REST endpoints
 
 ---
 
 ## Database Schema
 
-### Tables (9 total)
+### Tables (13 total)
 
 - users
 - movies
@@ -291,6 +339,10 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 - showtimes
 - reservations
 - reservation_seats
+- seat_holds
+- seat_allocations
+- loyalty_transactions
+- watchlist
 
 ### Key Features
 
@@ -357,35 +409,61 @@ The Movie Reservation System is a fully-functional, enterprise-grade backend ser
 
 ## Code Quality Metrics
 
-- **Backend Lines of Code**: ~2,500+
-- **Frontend Lines of Code**: ~3,000+
-- **Controllers**: 8
-- **Services**: 8
-- **Repositories**: 8
-- **Entities**: 8
-- **React Components**: 15+
-- **API Routes**: 20+
-- **Database Tables**: 9
+- **Backend Lines of Code**: ~3,800+
+- **Frontend Lines of Code**: ~4,500+
+- **Controllers**: 13
+- **Services**: 13
+- **Repositories**: 13
+- **Entities**: 12
+- **React Components**: 20+
+- **API Routes**: 25+
+- **Database Tables**: 13
+- **Automated Test Cases**: 100+
 
 ---
 
 ## Testing Coverage
 
-### Covered Areas
+### Automated Test Suite (100+ cases)
 
-- ✅ Authentication flow
-- ✅ Reservation creation
-- ✅ Seat conflict detection
-- ✅ Double-booking prevention
-- ✅ Role-based access
-- ✅ Data validation
-- ✅ API error handling
+#### RestAssured API Tests (`AutomationTests/`)
+- ✅ Auth module (register, login, invalid credentials)
+- ✅ Movies module (CRUD, genre filtering)
+- ✅ Halls module (create, update with/without future showtimes)
+- ✅ Showtimes module (scheduling, overlap detection)
+- ✅ Seat Holds module (create, confirm, release, expire, concurrent hold)
+- ✅ Reservations module (create, cancel, list with filters)
+- ✅ Reports module (revenue, capacity, top-movies)
+- ✅ Security module (401/403 enforcement)
+- ✅ Genres module
+- ✅ Users module (admin only)
+- Allure HTML report generated on every run
+
+#### Unit Tests (`MovieReservationSystem/`)
+- ✅ `AuthServiceTest` — register (success, duplicate email), login (success, wrong password)
+- ✅ `ReservationServiceTest` — createReservation, cancelReservation (full/partial refund), getUserReservations
+- ✅ `ShowtimeServiceTest` — createShowtime (success, overlap conflict), getShowtimeById
+- ✅ `HallServiceTest` — createHall, updateHall (layout change w/ and w/o future showtimes)
+
+#### Integration Tests (`MovieReservationSystem/`)
+- ✅ `AuthControllerIntegrationTest` — POST /api/auth/register + /login
+- ✅ `UserControllerIntegrationTest` — GET/PUT /api/users/me (auth required)
+- ✅ `ReservationControllerIntegrationTest` — GET /api/reservations/me with filters
+- ✅ `SecurityIntegrationTest` — 401/403 for all protected endpoints
+- ✅ `ReservationRepositoryTest` — JPQL filter queries with `@SpringBootTest @Transactional`
+
+#### UI Automation Tests (`AutomationTests/` — Selenium + Cucumber)
+- ✅ 12 BDD feature files covering signup, login, home, movies, booking, watchlist, profile, loyalty, admin
+- ✅ Page Object pattern: LoginPage, HomePage, MoviePage, ProfilePage, BookingCreationPage, BookingSuccessPage, AdminPage
+- ✅ Allure HTML reports with screenshots on failure
 
 ### Testing Frameworks
 
-- JUnit 5
-- Mockito
-- Spring Test
+- JUnit 5 + Mockito + AssertJ
+- Spring Test (`@SpringBootTest`, MockMvc)
+- RestAssured + TestNG (API tests)
+- Selenium WebDriver + Cucumber BDD (UI tests)
+- Allure reporting
 
 ---
 

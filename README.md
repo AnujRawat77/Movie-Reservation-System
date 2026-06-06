@@ -15,11 +15,15 @@ The **Movie Reservation System** is a complete backend service that simulates th
 - ✅ User Registration & Authentication (JWT-based)
 - ✅ Browse Movies by Genre, Date, or Title
 - ✅ View Movie Details and Showtimes
+- ✅ Add Movies to Watchlist / Favourites
 - ✅ Interactive Seat Selection & Reservation
+- ✅ 2-Phase Seat Hold with 5-Minute TTL (concurrent-safe)
 - ✅ Multi-seat Booking (atomic transactions)
-- ✅ View Personal Bookings and Reservation History
+- ✅ View Personal Bookings with Status / Date / Title Filters
 - ✅ Cancel Upcoming Reservations
 - ✅ Real-time Seat Availability Status
+- ✅ Loyalty Points (earn 10 pts/$1, redeem, full history)
+- ✅ User Profile Management (name, phone, address)
 
 ### Admin Features
 - ✅ Movie Management (CRUD operations)
@@ -54,15 +58,21 @@ The **Movie Reservation System** is a complete backend service that simulates th
 │  │  - MovieController                              │  │
 │  │  - ShowtimeController                           │  │
 │  │  - ReservationController                        │  │
+│  │  - SeatHoldController                           │  │
 │  │  - ReportController                             │  │
 │  │  - UserController                               │  │
 │  │  - GenreController                              │  │
 │  │  - HallController                               │  │
+│  │  - LoyaltyController                            │  │
+│  │  - WatchlistController                          │  │
 │  └──────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │ Services (Business Logic)                        │  │
 │  │  - AuthService                                  │  │
 │  │  - ReservationService (Transaction Management)  │  │
+│  │  - SeatHoldService (Hold + Concurrency Control) │  │
+│  │  - LoyaltyService (Points Engine)               │  │
+│  │  - WatchlistService                             │  │
 │  │  - ReportService                                │  │
 │  │  - MovieService                                 │  │
 │  └──────────────────────────────────────────────────┘  │
@@ -82,6 +92,8 @@ The **Movie Reservation System** is a complete backend service that simulates th
 │  │  - users, genres, movies, movie_genre           │  │
 │  │  - halls, seats, showtimes                       │  │
 │  │  - reservations, reservation_seats              │  │
+│  │  - seat_holds, seat_allocations                  │  │
+│  │  - loyalty_transactions, watchlist              │  │
 │  └──────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -91,7 +103,7 @@ The **Movie Reservation System** is a complete backend service that simulates th
 ### Core Entities
 
 **User**
-- id (UUID), name, email, password_hash, role (USER/ADMIN), timestamps
+- id (UUID), name, email, password_hash, role (USER/ADMIN), phone, address, loyalty_points, timestamps
 
 **Movie**
 - id, title, description, posterUrl, durationMinutes, rating, year, genres (M:N)
@@ -114,8 +126,21 @@ The **Movie Reservation System** is a complete backend service that simulates th
 **ReservationSeat** (Junction Table)
 - id, reservation_id, seat_id, showtime_id
 
+**SeatHold**
+- id (UUID), user_id, showtime_id, seat_ids (JSON), status (ACTIVE/CONFIRMED/EXPIRED/RELEASED), expires_at
+
+**SeatAllocation** (Concurrency Lock)
+- id, showtime_id, seat_id — `UNIQUE(showtime_id, seat_id)` enforces one-hold-per-seat
+
+**LoyaltyTransaction**
+- id, user_id, type (EARNED/REDEEMED), points, description, reservation_id, created_at
+
+**Watchlist**
+- id, user_id, movie_id — `UNIQUE(user_id, movie_id)`
+
 ### Key Constraints
-- ✅ Unique constraint on ReservationSeat for preventing double-booking
+- ✅ `UNIQUE(showtime_id, seat_id)` on `seat_allocations` — DB-enforced concurrency guard
+- ✅ `UNIQUE(user_id, movie_id)` on `watchlist`
 - ✅ No overlapping showtimes on the same hall
 - ✅ Soft delete for movies with active reservations
 
@@ -182,9 +207,35 @@ Password: Admin@123
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
 | POST | `/api/reservations` | Create reservation | User |
-| GET | `/api/reservations/me` | View my reservations | User |
+| GET | `/api/reservations/me?status=&from=&to=&movie=` | View my reservations (filtered) | User |
 | DELETE | `/api/reservations/{id}` | Cancel reservation | User |
 | GET | `/api/reservations` | View all (admin) | Admin |
+
+### Seat Hold Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/holds` | Create seat hold (5-min TTL) | User |
+| GET | `/api/holds/{holdId}` | Get hold status | User |
+| DELETE | `/api/holds/{holdId}` | Release hold | User |
+| POST | `/api/holds/{holdId}/refresh` | Extend TTL | User |
+| POST | `/api/holds/{holdId}/confirm` | Confirm → Reservation | User |
+
+### User Profile & Loyalty Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/users/me` | Get profile | User |
+| PUT | `/api/users/me` | Update profile | User |
+| GET | `/api/users/me/loyalty/balance` | Get loyalty points | User |
+| GET | `/api/users/me/loyalty/history` | Loyalty transaction log | User |
+| POST | `/api/users/me/loyalty/redeem` | Redeem points | User |
+
+### Watchlist Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/users/me/watchlist` | Get watchlist | User |
+| POST | `/api/movies/{id}/watchlist` | Add to watchlist | User |
+| DELETE | `/api/movies/{id}/watchlist` | Remove from watchlist | User |
+| GET | `/api/movies/{id}/watchlist/status` | Check if bookmarked | User |
 
 ### Admin Endpoints
 | Method | Endpoint | Description |
@@ -377,7 +428,7 @@ git push origin feature/your-feature
 ## 📈 Completion Status
 
 ### ✅ Completed Features
-- [x] User authentication & authorization (JWT)
+- [x] User authentication & authorization (JWT + BCrypt-12)
 - [x] Role-based access control (ADMIN/USER)
 - [x] Movie management (CRUD)
 - [x] Genre management
@@ -386,7 +437,11 @@ git push origin feature/your-feature
 - [x] Seat management & availability
 - [x] Multi-seat reservations (atomic transactions)
 - [x] Reservation cancellation
-- [x] Concurrency control (double-booking prevention)
+- [x] **2-Phase Seat Hold** with 5-min TTL and DB-enforced concurrency control
+- [x] **Loyalty Points Engine** (earn 10 pts/$1, redeem, audit log)
+- [x] **Watchlist / Movie Favourites**
+- [x] **User Profile Management** (name, phone, address)
+- [x] **Booking History Filters** (status, date range, movie title)
 - [x] Revenue reporting
 - [x] Capacity/occupancy reporting
 - [x] Top-grossing movies report
@@ -394,19 +449,19 @@ git push origin feature/your-feature
 - [x] CORS configuration
 - [x] Data validation & error handling
 - [x] Database seeding with test data
-- [x] Frontend UI with React
+- [x] Frontend UI with React + TanStack Router
 - [x] Admin dashboard
+- [x] **3-layer automated test suite** (100+ cases — API, unit, integration, UI/BDD)
 
 ### 🚀 Optional Extensions
-- [ ] Payment gateway integration (Stripe/Razorpay)
+- [ ] Real payment gateway (Stripe/Razorpay)
 - [ ] Email notifications
 - [ ] OAuth login (Google/Facebook)
 - [ ] QR code ticket generation
 - [ ] WebSocket real-time seat updates
-- [ ] Refund/credit system
-- [ ] Discount codes & promotions
 - [ ] Multi-location support
 - [ ] Internationalization (i18n)
+- [ ] Containerisation (Dockerfile + docker-compose)
 
 ## 🌐 Environment Variables
 
@@ -457,6 +512,6 @@ Anuj Rawat - Full Stack Developer
 
 ---
 
-**Last Updated**: May 31, 2026  
-**Version**: 1.0.0
+**Last Updated**: June 6, 2026  
+**Version**: 1.1.0
 
