@@ -126,6 +126,10 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public ReservationResponse mapToResponse(Reservation reservation) {
+        return toResponse(reservation, reservation.getReservationSeats());
+    }
+
     private ReservationResponse toResponse(Reservation reservation, List<ReservationSeat> reservationSeats) {
         Showtime showtime = reservation.getShowtime();
 

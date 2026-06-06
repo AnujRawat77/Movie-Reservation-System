@@ -37,4 +37,25 @@ public class ReportController {
         List<Map<String, Object>> topMovies = reportService.getTopMovies();
         return ResponseEntity.ok(ApiResponse.success(topMovies));
     }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboard() {
+        return ResponseEntity.ok(ApiResponse.success(reportService.getDashboardSummary()));
+    }
+
+    @GetMapping("/daily-sales")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getDailySales(
+            @RequestParam(defaultValue = "30") int days) {
+        return ResponseEntity.ok(ApiResponse.success(reportService.getDailySales(days)));
+    }
+
+    @GetMapping("/revenue-by-genre")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getRevenueByGenre() {
+        return ResponseEntity.ok(ApiResponse.success(reportService.getRevenueByGenre()));
+    }
+
+    @GetMapping("/top-halls")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopHalls() {
+        return ResponseEntity.ok(ApiResponse.success(reportService.getTopHalls()));
+    }
 }

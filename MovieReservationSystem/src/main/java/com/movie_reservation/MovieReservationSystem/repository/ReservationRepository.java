@@ -35,4 +35,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     @Query("SELECT SUM(r.totalAmount) FROM Reservation r " +
            "WHERE r.showtime.movie.title = :movieTitle AND r.status = 'CONFIRMED'")
     BigDecimal sumRevenueByMovieTitle(@Param("movieTitle") String movieTitle);
+
+    @Query("SELECT CAST(r.createdAt AS LocalDate), SUM(r.totalAmount), COUNT(r) " +
+           "FROM Reservation r WHERE r.status = 'CONFIRMED' AND r.createdAt >= :from " +
+           "GROUP BY CAST(r.createdAt AS LocalDate) ORDER BY CAST(r.createdAt AS LocalDate)")
+    List<Object[]> findDailySales(@Param("from") LocalDateTime from);
+
+    @Query("SELECT g.name, SUM(r.totalAmount) " +
+           "FROM Reservation r JOIN r.showtime s JOIN s.movie m JOIN m.genres g " +
+           "WHERE r.status = 'CONFIRMED' " +
+           "GROUP BY g.name ORDER BY SUM(r.totalAmount) DESC")
+    List<Object[]> findRevenueByGenre();
+
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.status = 'CONFIRMED'")
+    long countConfirmed();
+
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.status = 'CANCELLED'")
+    long countCancelled();
+
+    @Query("SELECT SUM(r.totalAmount) FROM Reservation r WHERE r.status = 'CONFIRMED'")
+    BigDecimal totalRevenue();
+
+    List<Reservation> findByUserId(Long userId);
 }

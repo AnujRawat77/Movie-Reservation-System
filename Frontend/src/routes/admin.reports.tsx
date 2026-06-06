@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   admin, ApiError,
   type RevenueReport, type CapacityReport, type TopMovie,
+  type DashboardSummary, type DailySale, type GenreRevenue, type HallStats,
 } from "@/lib/api";
 
 export const Route = createFileRoute("/admin/reports")({ component: AdminReports });
@@ -38,13 +39,15 @@ function AdminReports() {
         <p className="text-sm text-muted-foreground">Revenue, capacity, and analytics</p>
       </div>
 
-      <Tabs defaultValue="revenue" className="w-full">
+      <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="mb-6">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
           <TabsTrigger value="capacity">Capacity</TabsTrigger>
           <TabsTrigger value="top">Top Movies</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="dashboard"><DashboardTab /></TabsContent>
         <TabsContent value="revenue"><RevenueTab /></TabsContent>
         <TabsContent value="capacity"><CapacityTab /></TabsContent>
         <TabsContent value="top"><TopMoviesTab /></TabsContent>
@@ -190,6 +193,168 @@ function CapacityTab() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function DashboardTab() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [dailySales, setDailySales] = useState<DailySale[]>([]);
+  const [genreRevenue, setGenreRevenue] = useState<GenreRevenue[]>([]);
+  const [hallStats, setHallStats] = useState<HallStats[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [s, d, g, h] = await Promise.all([
+          admin.reports.dashboard(),
+          admin.reports.dailySales(30),
+          admin.reports.revenueByGenre(),
+          admin.reports.topHalls(),
+        ]);
+        setSummary(s);
+        setDailySales(d);
+        setGenreRevenue(g);
+        setHallStats(h);
+      } catch (e) {
+        toast.error(e instanceof ApiError ? e.message : "Failed to load dashboard");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) return <div className="py-8 text-center text-muted-foreground">Loading dashboard…</div>;
+
+  return (
+    <div className="space-y-6">
+      {summary && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="border-border bg-card/60">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Bookings</CardTitle></CardHeader>
+            <CardContent><p className="font-display text-3xl">{summary.totalBookings}</p></CardContent>
+          </Card>
+          <Card className="border-border bg-card/60">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Cancellations</CardTitle></CardHeader>
+            <CardContent><p className="font-display text-3xl text-destructive">{summary.totalCancellations}</p></CardContent>
+          </Card>
+          <Card className="border-border bg-card/60">
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Revenue</CardTitle></CardHeader>
+            <CardContent><p className="font-display text-3xl text-gradient-gold">${Number(summary.totalRevenue).toFixed(2)}</p></CardContent>
+          </Card>
+        </div>
+      )}
+
+      {dailySales.length > 0 && (
+        <Card className="border-border bg-card/60">
+          <CardHeader className="flex flex-row items-start justify-between">
+            <CardTitle className="font-display text-xl">Daily Sales (Last 30 Days)</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [["Date", "Revenue", "Bookings"], ...dailySales.map((d) => [d.date, Number(d.revenue).toFixed(2), String(d.bookings)])];
+                triggerDownload(rows.map((r) => r.join(",")).join("\n"), "daily-sales.csv", "text/csv");
+              }}
+            >
+              <Download className="mr-1 h-4 w-4" /> CSV
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Bookings</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {dailySales.map((d) => (
+                  <TableRow key={d.date}>
+                    <TableCell>{d.date}</TableCell>
+                    <TableCell className="text-right text-accent">${Number(d.revenue).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">{d.bookings}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {genreRevenue.length > 0 && (
+        <Card className="border-border bg-card/60">
+          <CardHeader className="flex flex-row items-start justify-between">
+            <CardTitle className="font-display text-xl">Revenue by Genre</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [["Genre", "Revenue"], ...genreRevenue.map((g) => [g.genre, Number(g.revenue).toFixed(2)])];
+                triggerDownload(rows.map((r) => r.join(",")).join("\n"), "revenue-by-genre.csv", "text/csv");
+              }}
+            >
+              <Download className="mr-1 h-4 w-4" /> CSV
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Genre</TableHead>
+                  <TableHead className="text-right">Revenue</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {genreRevenue.map((g) => (
+                  <TableRow key={g.genre}>
+                    <TableCell className="font-medium">{g.genre}</TableCell>
+                    <TableCell className="text-right text-accent">${Number(g.revenue).toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {hallStats.length > 0 && (
+        <Card className="border-border bg-card/60">
+          <CardHeader className="flex flex-row items-start justify-between">
+            <CardTitle className="font-display text-xl">Top Halls</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [["Hall", "Showtimes"], ...hallStats.map((h) => [h.hallName, String(h.showtimeCount)])];
+                triggerDownload(rows.map((r) => r.join(",")).join("\n"), "top-halls.csv", "text/csv");
+              }}
+            >
+              <Download className="mr-1 h-4 w-4" /> CSV
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Hall</TableHead>
+                  <TableHead className="text-right">Showtimes</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {hallStats.map((h) => (
+                  <TableRow key={h.hallName}>
+                    <TableCell className="font-medium">{h.hallName}</TableCell>
+                    <TableCell className="text-right">{h.showtimeCount}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
 

@@ -98,4 +98,51 @@ public class ReportService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public Map<String, Object> getDashboardSummary() {
+        long confirmed = reservationRepository.countConfirmed();
+        long cancelled = reservationRepository.countCancelled();
+        BigDecimal revenue = reservationRepository.totalRevenue();
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalBookings", confirmed);
+        summary.put("totalCancellations", cancelled);
+        summary.put("totalRevenue", revenue != null ? revenue : BigDecimal.ZERO);
+        return summary;
+    }
+
+    public List<Map<String, Object>> getDailySales(int days) {
+        LocalDateTime from = LocalDateTime.now().minusDays(days);
+        return reservationRepository.findDailySales(from).stream()
+                .map(row -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("date", row[0].toString());
+                    entry.put("revenue", row[1]);
+                    entry.put("bookings", row[2]);
+                    return entry;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getRevenueByGenre() {
+        return reservationRepository.findRevenueByGenre().stream()
+                .map(row -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("genre", row[0]);
+                    entry.put("revenue", row[1]);
+                    return entry;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getTopHalls() {
+        return showtimeRepository.findTopHallsByShowtimeCount().stream()
+                .map(row -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("hallName", row[0]);
+                    entry.put("showtimeCount", row[1]);
+                    return entry;
+                })
+                .collect(Collectors.toList());
+    }
 }

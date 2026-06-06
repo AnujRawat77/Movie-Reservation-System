@@ -313,6 +313,7 @@ export type UserDto = {
   name: string;
   email: string;
   role: "USER" | "ADMIN";
+  active: boolean;
   createdAt: string;
 };
 
@@ -349,6 +350,16 @@ export type ShowtimeFormPayload = {
   price: number;
 };
 
+export type BulkShowtimePayload = {
+  movieId: number;
+  hallId: number;
+  startDate: string;
+  endDate: string;
+  times: string[];
+  price: number;
+  daysOfWeek: string[];
+};
+
 export type HallFormPayload = {
   name: string;
   totalRows: number;
@@ -375,6 +386,16 @@ export type CapacityReport = {
 };
 
 export type TopMovie = { movieId: number; title: string; revenue: number };
+
+export type DashboardSummary = {
+  totalBookings: number;
+  totalCancellations: number;
+  totalRevenue: number;
+};
+
+export type DailySale = { date: string; revenue: number; bookings: number };
+export type GenreRevenue = { genre: string; revenue: number };
+export type HallStats = { hallName: string; showtimeCount: number };
 
 // ---------- Admin ----------
 
@@ -450,6 +471,11 @@ export const admin = {
       }),
     cancel: (id: number) =>
       request<void>(`/api/showtimes/${id}`, { method: "DELETE" }),
+    bulk: (data: BulkShowtimePayload) =>
+      request<ShowtimeDto[]>("/api/showtimes/bulk", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
   },
   users: {
     list: () => request<UserDto[]>("/api/users"),
@@ -458,6 +484,10 @@ export const admin = {
         method: "PATCH",
         body: JSON.stringify({ role }),
       }),
+    toggleActive: (id: number) =>
+      request<UserDto>(`/api/users/${id}/toggle-active`, { method: "PATCH" }),
+    bookings: (id: number) =>
+      request<ReservationDto[]>(`/api/users/${id}/bookings`),
   },
   reservations: {
     list: () => request<ReservationDto[]>("/api/reservations"),
@@ -468,5 +498,10 @@ export const admin = {
     capacity: (showtimeId: number) =>
       request<CapacityReport>(`/api/reports/capacity/${showtimeId}`),
     topMovies: () => request<TopMovie[]>("/api/reports/top-movies"),
+    dashboard: () => request<DashboardSummary>("/api/reports/dashboard"),
+    dailySales: (days = 30) =>
+      request<DailySale[]>(`/api/reports/daily-sales?days=${days}`),
+    revenueByGenre: () => request<GenreRevenue[]>("/api/reports/revenue-by-genre"),
+    topHalls: () => request<HallStats[]>("/api/reports/top-halls"),
   },
 };

@@ -107,10 +107,10 @@
 - [ ] **Upcoming movies / pre-booking** — Allow creating movies with `status=SOON` and let users register interest before showtimes are created.
 
 ### Admin & Analytics
-- [ ] **Admin dashboard API** — Endpoints for daily/weekly/monthly sales, occupancy rate trends, top-performing movies/halls, revenue by genre.
-- [ ] **Bulk showtime creation** — Create recurring showtimes (e.g., every day at 6pm for 2 weeks) in one API call.
-- [ ] **User management** — Admin: suspend/activate users (`isActive` flag), view booking history per user.
-- [ ] **Export reports** — Export revenue/occupancy reports as CSV or Excel (`Apache POI`).
+- [x] **Admin dashboard API** — Endpoints for daily/weekly/monthly sales, occupancy rate trends, top-performing movies/halls, revenue by genre.
+- [x] **Bulk showtime creation** — Create recurring showtimes (e.g., every day at 6pm for 2 weeks) in one API call.
+- [x] **User management** — Admin: suspend/activate users (`isActive` flag), view booking history per user.
+- [x] **Export reports** — Export revenue/occupancy reports as CSV or Excel (`Apache POI`).
 
 ### User Experience
 - [ ] **User profile** — Allow users to update name, phone, profile picture. Add `phone`, `address`, `profilePictureUrl` to `User`.

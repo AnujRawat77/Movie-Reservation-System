@@ -32,6 +32,10 @@ public class User {
     @Builder.Default
     private String role = "USER";
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean active = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

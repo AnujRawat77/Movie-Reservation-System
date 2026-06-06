@@ -1,9 +1,11 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.UserResponse;
 import com.movie_reservation.MovieReservationSystem.entity.User;
 import com.movie_reservation.MovieReservationSystem.exception.BusinessException;
 import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundException;
+import com.movie_reservation.MovieReservationSystem.repository.ReservationRepository;
 import com.movie_reservation.MovieReservationSystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,24 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReservationService reservationService;
+
+    public UserResponse toggleActive(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+        user.setActive(!Boolean.TRUE.equals(user.getActive()));
+        user = userRepository.save(user);
+        return toResponse(user);
+    }
+
+    public List<ReservationResponse> getUserBookings(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        return reservationRepository.findByUserId(userId).stream()
+                .map(r -> reservationService.mapToResponse(r))
+                .collect(Collectors.toList());
+    }
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -48,6 +68,7 @@ public class UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .active(user.getActive())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

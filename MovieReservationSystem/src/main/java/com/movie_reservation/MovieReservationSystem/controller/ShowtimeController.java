@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.controller;
 
+import com.movie_reservation.MovieReservationSystem.dto.request.BulkShowtimeRequest;
 import com.movie_reservation.MovieReservationSystem.dto.request.ShowtimeRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ApiResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.SeatResponse;
@@ -61,6 +62,14 @@ public class ShowtimeController {
             @Valid @RequestBody ShowtimeRequest request) {
         ShowtimeResponse showtime = showtimeService.createShowtime(request);
         return ResponseEntity.ok(ApiResponse.success(showtime, "Showtime created successfully"));
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<List<ShowtimeResponse>>> createBulkShowtimes(
+            @Valid @RequestBody BulkShowtimeRequest request) {
+        List<ShowtimeResponse> showtimes = showtimeService.createBulkShowtimes(request);
+        return ResponseEntity.ok(ApiResponse.success(showtimes,
+                showtimes.size() + " showtimes created successfully"));
     }
 
     @PutMapping("/{id}")

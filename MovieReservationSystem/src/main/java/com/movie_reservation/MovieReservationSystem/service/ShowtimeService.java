@@ -2,6 +2,7 @@ package com.movie_reservation.MovieReservationSystem.service;
 
 import com.movie_reservation.MovieReservationSystem.constant.ReservationStatus;
 import com.movie_reservation.MovieReservationSystem.constant.ShowtimeStatus;
+import com.movie_reservation.MovieReservationSystem.dto.request.BulkShowtimeRequest;
 import com.movie_reservation.MovieReservationSystem.dto.request.ShowtimeRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.SeatResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.ShowtimeResponse;
@@ -16,11 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -255,6 +257,54 @@ public class ShowtimeService {
                 });
 
         log.info("Cancelled showtime id={}", id);
+    }
+
+    @Transactional
+    public List<ShowtimeResponse> createBulkShowtimes(BulkShowtimeRequest request) {
+        Movie movie = movieRepository.findByIdAndIsDeletedFalse(request.getMovieId())
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", request.getMovieId()));
+
+        Hall hall = hallRepository.findById(request.getHallId())
+                .orElseThrow(() -> new ResourceNotFoundException("Hall", request.getHallId()));
+
+        Set<DayOfWeek> targetDays = request.getDaysOfWeek().stream()
+                .map(d -> DayOfWeek.valueOf(d.toUpperCase()))
+                .collect(Collectors.toSet());
+
+        List<ShowtimeResponse> created = new ArrayList<>();
+        LocalDate current = request.getStartDate();
+
+        while (!current.isAfter(request.getEndDate())) {
+            if (targetDays.contains(current.getDayOfWeek())) {
+                for (LocalTime time : request.getTimes()) {
+                    LocalDateTime startTime = current.atTime(time);
+                    LocalDateTime endTime = startTime
+                            .plusMinutes(movie.getDurationMinutes())
+                            .plusMinutes(bufferMinutes);
+
+                    boolean hasOverlap = showtimeRepository
+                            .existsByHallIdAndStatusAndStartTimeLessThanAndEndTimeGreaterThan(
+                                    hall.getId(), ShowtimeStatus.SCHEDULED, endTime, startTime);
+
+                    if (!hasOverlap) {
+                        Showtime showtime = Showtime.builder()
+                                .movie(movie)
+                                .hall(hall)
+                                .startTime(startTime)
+                                .endTime(endTime)
+                                .price(request.getPrice())
+                                .status(ShowtimeStatus.SCHEDULED)
+                                .build();
+                        showtime = showtimeRepository.save(showtime);
+                        created.add(toResponse(showtime));
+                    }
+                }
+            }
+            current = current.plusDays(1);
+        }
+
+        log.info("Bulk created {} showtimes for movie={} hall={}", created.size(), movie.getId(), hall.getId());
+        return created;
     }
 
     public ShowtimeResponse toResponse(Showtime showtime) {

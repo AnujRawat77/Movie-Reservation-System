@@ -2,6 +2,7 @@ package com.movie_reservation.MovieReservationSystem.repository;
 
 import com.movie_reservation.MovieReservationSystem.entity.Showtime;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -22,4 +23,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
     boolean existsByHallIdAndStatusAndStartTimeAfter(Long hallId, String status, LocalDateTime after);
 
     List<Showtime> findAllByOrderByStartTimeAsc();
+
+    @Query("SELECT s.hall.name, COUNT(s) FROM Showtime s WHERE s.status = 'SCHEDULED' GROUP BY s.hall.name ORDER BY COUNT(s) DESC")
+    List<Object[]> findTopHallsByShowtimeCount();
 }

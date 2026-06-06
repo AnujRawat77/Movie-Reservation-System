@@ -2,6 +2,7 @@ package com.movie_reservation.MovieReservationSystem.controller;
 
 import com.movie_reservation.MovieReservationSystem.dto.request.UserRoleRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ApiResponse;
+import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.UserResponse;
 import com.movie_reservation.MovieReservationSystem.service.UserService;
 import jakarta.validation.Valid;
@@ -39,5 +40,17 @@ public class UserController {
             @Valid @RequestBody UserRoleRequest request) {
         UserResponse response = userService.updateRole(id, request.getRole());
         return ResponseEntity.ok(ApiResponse.success(response, "Role updated successfully"));
+    }
+
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<ApiResponse<UserResponse>> toggleActive(@PathVariable Long id) {
+        UserResponse response = userService.toggleActive(id);
+        return ResponseEntity.ok(ApiResponse.success(response, "User status updated"));
+    }
+
+    @GetMapping("/{id}/bookings")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getUserBookings(@PathVariable Long id) {
+        List<ReservationResponse> bookings = userService.getUserBookings(id);
+        return ResponseEntity.ok(ApiResponse.success(bookings));
     }
 }
