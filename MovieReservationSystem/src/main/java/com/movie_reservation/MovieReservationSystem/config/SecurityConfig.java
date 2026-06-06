@@ -73,6 +73,16 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-ui.html").permitAll()
 
+                // User profile update
+                .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()
+                // Loyalty endpoints
+                .requestMatchers("/api/users/me/loyalty/**").authenticated()
+                // Watchlist endpoints (POST/DELETE require auth; GET status requires auth)
+                .requestMatchers(HttpMethod.POST, "/api/movies/*/watchlist").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/movies/*/watchlist").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/movies/*/watchlist/status").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/users/me/watchlist").authenticated()
+
                 // Admin-only endpoints
                 .requestMatchers("/api/reports/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/movies/**").hasRole("ADMIN")

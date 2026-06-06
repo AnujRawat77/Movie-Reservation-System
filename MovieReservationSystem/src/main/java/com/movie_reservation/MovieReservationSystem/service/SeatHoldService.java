@@ -10,6 +10,7 @@ import com.movie_reservation.MovieReservationSystem.entity.*;
 import com.movie_reservation.MovieReservationSystem.exception.BusinessException;
 import com.movie_reservation.MovieReservationSystem.exception.ResourceNotFoundException;
 import com.movie_reservation.MovieReservationSystem.repository.*;
+import com.movie_reservation.MovieReservationSystem.service.LoyaltyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,7 @@ public class SeatHoldService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationSeatRepository reservationSeatRepository;
+    private final LoyaltyService loyaltyService;
 
     // ─── Create Hold ─────────────────────────────────────────────────────────
 
@@ -219,6 +221,9 @@ public class SeatHoldService {
         seatAllocationRepository.deleteByHoldId(holdId);
         hold.setStatus("CONFIRMED");
         seatHoldRepository.save(hold);
+
+        // Award loyalty points (10 pts per $1)
+        loyaltyService.awardPoints(user.getId(), totalAmount, reservation.getId());
 
         return toReservationResponse(reservation, reservationSeats);
     }
