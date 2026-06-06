@@ -1,18 +1,21 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, Globe, Play, Star, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Clock, Globe, Play, Star, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   movies as moviesApi,
   reviews as reviewsApi,
+  watchlist as watchlistApi,
   resolvePoster,
   getToken,
   type MovieDto,
   type ShowtimeDto,
   type ReviewDto,
+  ApiError,
 } from "@/lib/api";
 import { ROUTES } from "@/constants/routes";
 import { HammerButton } from "@/components/HammerButton";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/movies/$id")({
   loader: async ({ params }) => {
@@ -80,6 +83,38 @@ function MovieDetail() {
 
   const slots = showtimes.filter((s) => s.date === selectedDate);
   const poster = resolvePoster(movie.posterUrl);
+  const isLoggedIn = !!getToken();
+
+  const [inWatchlist, setInWatchlist] = useState(false);
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    watchlistApi.status(movie.id).then((r) => setInWatchlist(r.inWatchlist)).catch(() => {});
+  }, [movie.id, isLoggedIn]);
+
+  const toggleWatchlist = async () => {
+    if (!isLoggedIn) {
+      toast.error("Sign in to manage your watchlist");
+      return;
+    }
+    setWatchlistLoading(true);
+    try {
+      if (inWatchlist) {
+        await watchlistApi.remove(movie.id);
+        setInWatchlist(false);
+        toast.success("Removed from watchlist");
+      } else {
+        await watchlistApi.add(movie.id);
+        setInWatchlist(true);
+        toast.success("Added to watchlist");
+      }
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : "Failed to update watchlist");
+    } finally {
+      setWatchlistLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -123,7 +158,21 @@ function MovieDetail() {
             <h1 className="font-display text-6xl leading-none md:text-8xl">
               {movie.title}
             </h1>
-            <p className="mt-3 text-lg italic text-accent">"{movie.tagline}"</p>
+            <div className="mt-2 flex items-center gap-3">
+              <p className="text-lg italic text-accent">"{movie.tagline}"</p>
+              <button
+                onClick={toggleWatchlist}
+                disabled={watchlistLoading}
+                title={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+                className="ml-auto rounded-full border border-border p-2 transition-colors hover:bg-accent/10 disabled:opacity-50"
+              >
+                {inWatchlist ? (
+                  <BookmarkCheck className="h-5 w-5 text-accent" />
+                ) : (
+                  <Bookmark className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
+            </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
