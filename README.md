@@ -37,6 +37,86 @@ The **Movie Reservation System** is a complete backend service that simulates th
 - ✅ Top-Grossing Movies Analysis
 - ✅ Comprehensive Reservation Filtering
 
+## 📸 Screenshots
+
+### User Interface
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/SignIn.png" alt="Sign In"/>
+      <br/><b>Sign In</b>
+      <br/><sub>JWT-secured login with email and password</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Screenshots/SignUp.png" alt="Sign Up"/>
+      <br/><b>Sign Up</b>
+      <br/><sub>Quick registration to get started with seat reservations</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/HomePage.png" alt="Home Page"/>
+      <br/><b>Home Page</b>
+      <br/><sub>Cinematic landing page with hero section and movie highlights</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Screenshots/Movies.png" alt="Movie Catalog"/>
+      <br/><b>Movie Catalog</b>
+      <br/><sub>Browse movies by genre, status, and search by title or actor</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/Movies1.png" alt="Movie Details"/>
+      <br/><b>Movie Details & Showtimes</b>
+      <br/><sub>View full movie info, ratings, and select a showtime to book tickets</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Screenshots/MovieTicket.png" alt="Payment"/>
+      <br/><b>Payment & Checkout</b>
+      <br/><sub>Secure booking confirmation with live seat-hold countdown timer</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/BookingDetails.png" alt="Booking Details"/>
+      <br/><b>Booking Details</b>
+      <br/><sub>Full reservation breakdown with seat type, hall, and receipt download</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Screenshots/MyBookings.png" alt="My Bookings"/>
+      <br/><b>My Bookings</b>
+      <br/><sub>View and filter all past and upcoming reservations with cancel option</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/Profile.png" alt="User Profile"/>
+      <br/><b>User Profile</b>
+      <br/><sub>Manage profile info, loyalty points balance, watchlist, and sign out</sub>
+    </td>
+    <td></td>
+  </tr>
+</table>
+
+### Admin Panel
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Screenshots/AdminDashboard.png" alt="Admin Dashboard"/>
+      <br/><b>Admin Dashboard</b>
+      <br/><sub>Real-time overview of movies, showtimes, registered users, and total revenue</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Screenshots/AdminReports.png" alt="Admin Reports"/>
+      <br/><b>Reports & Analytics</b>
+      <br/><sub>Revenue, daily sales, and genre-based analytics with CSV export</sub>
+    </td>
+  </tr>
+</table>
+
 ## 🏗️ System Architecture
 
 ```
@@ -389,14 +469,19 @@ Movie Reservation System/
 │   ├── pom.xml
 │   └── mvnw / mvnw.cmd
 │
-├── Documentation/
-│   ├── README.md                      # This file
+├── docs/                              # Documentation
 │   ├── ARCHITECTURE.md                # Detailed system design
 │   ├── FRAMEWORKS.md                  # Technology stack details
 │   ├── CHANGELOG.md                   # Version history
-│   └── SETUP.md                       # Setup instructions
+│   ├── SETUP.md                       # Setup instructions
+│   ├── IMPROVEMENTS.md                # Planned improvements
+│   ├── ProblemStatement.md            # Original requirements
+│   ├── PROJECT_ANALYSIS.md            # Project analysis
+│   └── SUMMARY.md                     # Project summary
 │
-├── ProblemStatement.md                # Original requirements
+├── Screenshots/                       # Application screenshots
+├── AutomationTests/                   # UI automation test suite
+├── README.md                          # This file
 └── .gitignore
 ```
 
