@@ -71,6 +71,18 @@ public class AdminPage {
         return this;
     }
 
+    public AdminPage openGenres() {
+        driver.get(UIConfig.BASE_URL + "/admin/genres");
+        waitForPageLoad();
+        return this;
+    }
+
+    public AdminPage openReservations() {
+        driver.get(UIConfig.BASE_URL + "/admin/reservations");
+        waitForPageLoad();
+        return this;
+    }
+
     public void waitForPageLoad() {
         wait.until(d -> {
             String readyState = (String) ((org.openqa.selenium.JavascriptExecutor) d)

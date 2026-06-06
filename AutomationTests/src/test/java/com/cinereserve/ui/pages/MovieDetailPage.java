@@ -77,6 +77,17 @@ public class MovieDetailPage {
         }
     }
 
+    public boolean hasShowtimes() {
+        try {
+            List<WebElement> elements = driver.findElements(showtimesList);
+            if (!elements.isEmpty()) return true;
+            // Also check for any time-related content
+            return driver.findElements(By.xpath("//*[contains(text(),'showtime') or contains(text(),'Showtime') or contains(text(),'Schedule') or contains(@class,'showtime')]")).size() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public String getCurrentUrl() {
         return driver.getCurrentUrl();
     }
