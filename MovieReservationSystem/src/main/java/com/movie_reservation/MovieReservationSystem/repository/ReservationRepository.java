@@ -57,4 +57,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     BigDecimal totalRevenue();
 
     List<Reservation> findByUserId(Long userId);
+
+    @Query("SELECT r FROM Reservation r " +
+           "JOIN FETCH r.showtime s JOIN FETCH s.movie " +
+           "WHERE r.user.id = :userId " +
+           "AND (:status IS NULL OR r.status = :status) " +
+           "AND (:fromDate IS NULL OR r.createdAt >= :fromDate) " +
+           "AND (:toDate IS NULL OR r.createdAt < :toDate) " +
+           "AND (:movieTitle IS NULL OR LOWER(s.movie.title) LIKE LOWER(CONCAT('%', :movieTitle, '%'))) " +
+           "ORDER BY r.createdAt DESC")
+    List<Reservation> findByUserIdWithFilters(
+            @Param("userId") Long userId,
+            @Param("status") String status,
+            @Param("fromDate") LocalDateTime fromDate,
+            @Param("toDate") LocalDateTime toDate,
+            @Param("movieTitle") String movieTitle);
 }

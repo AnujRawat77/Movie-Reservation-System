@@ -7,11 +7,13 @@ import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResp
 import com.movie_reservation.MovieReservationSystem.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,8 +34,13 @@ public class ReservationController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<List<ReservationResponse>>> getMyReservations(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        List<ReservationResponse> reservations = reservationService.getUserReservations(userDetails.getUsername());
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate,
+            @RequestParam(required = false) String movieTitle) {
+        List<ReservationResponse> reservations = reservationService.getUserReservations(
+                userDetails.getUsername(), status, fromDate, toDate, movieTitle);
         return ResponseEntity.ok(ApiResponse.success(reservations));
     }
 

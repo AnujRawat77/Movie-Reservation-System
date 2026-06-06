@@ -214,6 +214,24 @@ export const auth = {
   me: () => request<AuthDto>("/api/users/me"),
 };
 
+// ---------- User Profile ----------
+
+export type UpdateProfilePayload = {
+  name?: string;
+  phone?: string;
+  address?: string;
+  profilePictureUrl?: string;
+};
+
+export const users = {
+  me: () => request<UserDto>("/api/users/me"),
+  updateProfile: (data: UpdateProfilePayload) =>
+    request<UserDto>("/api/users/me", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+};
+
 // ---------- Movies ----------
 
 export const movies = {
@@ -268,13 +286,28 @@ export const holds = {
 
 // ---------- Reservations ----------
 
+export type ReservationFilters = {
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+  movieTitle?: string;
+};
+
 export const reservations = {
   create: (showtimeId: number, seatIds: number[]) =>
     request<ReservationDto>("/api/reservations", {
       method: "POST",
       body: JSON.stringify({ showtimeId, seatIds }),
     }),
-  me: () => request<ReservationDto[]>("/api/reservations/me"),
+  me: (filters: ReservationFilters = {}) => {
+    const q = new URLSearchParams();
+    if (filters.status) q.set("status", filters.status);
+    if (filters.fromDate) q.set("fromDate", filters.fromDate);
+    if (filters.toDate) q.set("toDate", filters.toDate);
+    if (filters.movieTitle) q.set("movieTitle", filters.movieTitle);
+    const qs = q.toString();
+    return request<ReservationDto[]>(`/api/reservations/me${qs ? `?${qs}` : ""}`);
+  },
   get: (id: string) => request<ReservationDto>(`/api/reservations/${id}`),
   cancel: (id: string) =>
     request<ReservationDto>(`/api/reservations/${id}`, { method: "DELETE" }),
@@ -312,6 +345,10 @@ export type UserDto = {
   id: number;
   name: string;
   email: string;
+  phone: string | null;
+  address: string | null;
+  profilePictureUrl: string | null;
+  loyaltyPoints: number;
   role: "USER" | "ADMIN";
   active: boolean;
   createdAt: string;
@@ -396,6 +433,50 @@ export type DashboardSummary = {
 export type DailySale = { date: string; revenue: number; bookings: number };
 export type GenreRevenue = { genre: string; revenue: number };
 export type HallStats = { hallName: string; showtimeCount: number };
+
+// ---------- Loyalty ----------
+
+export type LoyaltyTransactionDto = {
+  id: number;
+  type: "EARNED" | "REDEEMED";
+  points: number;
+  description: string;
+  reservationId: string | null;
+  createdAt: string;
+};
+
+export type LoyaltyBalanceDto = {
+  balance: number;
+  transactions: LoyaltyTransactionDto[];
+};
+
+export const loyalty = {
+  balance: () => request<LoyaltyBalanceDto>("/api/users/me/loyalty"),
+  redeem: (points: number) =>
+    request<LoyaltyBalanceDto>("/api/users/me/loyalty/redeem", {
+      method: "POST",
+      body: JSON.stringify({ points }),
+    }),
+};
+
+// ---------- Watchlist ----------
+
+export type WatchlistItemDto = {
+  movieId: number;
+  movieTitle: string;
+  moviePosterUrl: string | null;
+  addedAt: string;
+};
+
+export const watchlist = {
+  list: () => request<WatchlistItemDto[]>("/api/users/me/watchlist"),
+  add: (movieId: number) =>
+    request<void>(`/api/movies/${movieId}/watchlist`, { method: "POST" }),
+  remove: (movieId: number) =>
+    request<void>(`/api/movies/${movieId}/watchlist`, { method: "DELETE" }),
+  status: (movieId: number) =>
+    request<{ inWatchlist: boolean }>(`/api/movies/${movieId}/watchlist/status`),
+};
 
 // ---------- Admin ----------
 

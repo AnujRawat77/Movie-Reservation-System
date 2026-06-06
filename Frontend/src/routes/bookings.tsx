@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Calendar, Clock, Eye, MapPin, Ticket, XCircle } from "lucide-react";
+import { Calendar, Clock, Eye, Filter, MapPin, Search, Ticket, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { ROUTES } from "@/constants/routes";
 import { STRINGS } from "@/constants/strings";
@@ -10,6 +10,7 @@ import {
   reservations as reservationsApi,
   ApiError,
   type ReservationDto,
+  type ReservationFilters,
 } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -30,6 +31,11 @@ function BookingsList() {
   const navigate = useNavigate();
   const [list, setList] = useState<ReservationDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<ReservationFilters>({});
+  const [statusFilter, setStatusFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [movieSearch, setMovieSearch] = useState("");
 
   useEffect(() => {
     if (hydrated && !isAuthenticated) {
@@ -37,9 +43,30 @@ function BookingsList() {
     }
   }, [hydrated, isAuthenticated, navigate]);
 
-  const refresh = async () => {
+  const applyFilters = () => {
+    const f: ReservationFilters = {};
+    if (statusFilter) f.status = statusFilter;
+    if (fromDate) f.fromDate = new Date(fromDate).toISOString();
+    if (toDate) {
+      const d = new Date(toDate);
+      d.setDate(d.getDate() + 1);
+      f.toDate = d.toISOString();
+    }
+    if (movieSearch.trim()) f.movieTitle = movieSearch.trim();
+    setFilters(f);
+  };
+
+  const clearFilters = () => {
+    setStatusFilter("");
+    setFromDate("");
+    setToDate("");
+    setMovieSearch("");
+    setFilters({});
+  };
+
+  const refresh = async (activeFilters = filters) => {
     try {
-      const data = await reservationsApi.me();
+      const data = await reservationsApi.me(activeFilters);
       setList(data);
     } catch (e) {
       if (e instanceof ApiError && e.status !== 401) toast.error(e.message);
@@ -50,14 +77,14 @@ function BookingsList() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    refresh();
-  }, [isAuthenticated]);
+    refresh(filters);
+  }, [isAuthenticated, filters]);
 
   const cancel = async (id: string) => {
     try {
       await reservationsApi.cancel(id);
       toast.success("Reservation cancelled");
-      refresh();
+      refresh(filters);
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : "Cancel failed";
       toast.error(msg);
@@ -107,6 +134,81 @@ function BookingsList() {
         <h1 className="font-display text-5xl md:text-7xl">My Bookings</h1>
       </motion.div>
 
+      {/* Filter bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6 rounded-xl border border-border bg-card/60 p-4"
+      >
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1 min-w-[140px]">
+            <label className="text-xs uppercase tracking-widest text-muted-foreground">Status</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+            >
+              <option value="">All</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest text-muted-foreground">From</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs uppercase tracking-widest text-muted-foreground">To</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div className="flex flex-col gap-1 min-w-[180px] flex-1">
+            <label className="text-xs uppercase tracking-widest text-muted-foreground">Movie</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search by movie title…"
+                value={movieSearch}
+                onChange={(e) => setMovieSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                className="w-full rounded-md border border-border bg-background py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </div>
+          </div>
+          <button
+            onClick={applyFilters}
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-background hover:bg-accent/90"
+          >
+            <Filter className="h-3.5 w-3.5" /> Apply
+          </button>
+          {(statusFilter || fromDate || toDate || movieSearch) && (
+            <button
+              onClick={clearFilters}
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </motion.div>
+
+      {list.length === 0 ? (
+        <div className="flex flex-col items-center py-16 text-center">
+          <Ticket className="mb-4 h-10 w-10 text-muted-foreground/40" />
+          <p className="text-muted-foreground">No bookings match your filters.</p>
+        </div>
+      ) : (
       <div className="space-y-4">
         {list.map((r, i) => (
           <motion.div
@@ -176,6 +278,7 @@ function BookingsList() {
           </motion.div>
         ))}
       </div>
+      )}
     </div>
   );
 }

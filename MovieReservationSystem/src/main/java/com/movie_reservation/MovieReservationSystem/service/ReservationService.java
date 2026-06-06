@@ -77,6 +77,21 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
+    public List<ReservationResponse> getUserReservations(String email, String status,
+                                                          LocalDateTime fromDate, LocalDateTime toDate,
+                                                          String movieTitle) {
+        if (status == null && fromDate == null && toDate == null && movieTitle == null) {
+            return getUserReservations(email);
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+
+        return reservationRepository.findByUserIdWithFilters(user.getId(), status, fromDate, toDate, movieTitle)
+                .stream()
+                .map(r -> toResponse(r, r.getReservationSeats()))
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ReservationResponse cancelReservation(UUID id, String email, boolean isAdmin) {
         Reservation reservation = reservationRepository.findById(id)

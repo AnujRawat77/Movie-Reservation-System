@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LoyaltyRouteImport } from './routes/loyalty'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -30,6 +32,11 @@ import { Route as AdminGenresRouteImport } from './routes/admin.genres'
 import { Route as BookingSuccessIdRouteImport } from './routes/booking.success.$id'
 import { Route as BookingConfirmHoldIdRouteImport } from './routes/booking.confirm.$holdId'
 
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -38,6 +45,11 @@ const SignupRoute = SignupRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoyaltyRoute = LoyaltyRouteImport.update({
+  id: '/loyalty',
+  path: '/loyalty',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -136,8 +148,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
+  '/loyalty': typeof LoyaltyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/watchlist': typeof WatchlistRoute
   '/admin/genres': typeof AdminGenresRoute
   '/admin/halls': typeof AdminHallsRoute
   '/admin/movies': typeof AdminMoviesRoute
@@ -157,8 +171,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
+  '/loyalty': typeof LoyaltyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/watchlist': typeof WatchlistRoute
   '/admin/genres': typeof AdminGenresRoute
   '/admin/halls': typeof AdminHallsRoute
   '/admin/movies': typeof AdminMoviesRoute
@@ -180,8 +196,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/bookings': typeof BookingsRouteWithChildren
   '/login': typeof LoginRoute
+  '/loyalty': typeof LoyaltyRoute
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
+  '/watchlist': typeof WatchlistRoute
   '/admin/genres': typeof AdminGenresRoute
   '/admin/halls': typeof AdminHallsRoute
   '/admin/movies': typeof AdminMoviesRoute
@@ -204,8 +222,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/bookings'
     | '/login'
+    | '/loyalty'
     | '/profile'
     | '/signup'
+    | '/watchlist'
     | '/admin/genres'
     | '/admin/halls'
     | '/admin/movies'
@@ -225,8 +245,10 @@ export interface FileRouteTypes {
     | '/'
     | '/bookings'
     | '/login'
+    | '/loyalty'
     | '/profile'
     | '/signup'
+    | '/watchlist'
     | '/admin/genres'
     | '/admin/halls'
     | '/admin/movies'
@@ -247,8 +269,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/bookings'
     | '/login'
+    | '/loyalty'
     | '/profile'
     | '/signup'
+    | '/watchlist'
     | '/admin/genres'
     | '/admin/halls'
     | '/admin/movies'
@@ -270,8 +294,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   BookingsRoute: typeof BookingsRouteWithChildren
   LoginRoute: typeof LoginRoute
+  LoyaltyRoute: typeof LoyaltyRoute
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
+  WatchlistRoute: typeof WatchlistRoute
   BookingShowtimeIdRoute: typeof BookingShowtimeIdRoute
   MoviesIdRoute: typeof MoviesIdRoute
   MoviesIndexRoute: typeof MoviesIndexRoute
@@ -281,6 +307,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -293,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loyalty': {
+      id: '/loyalty'
+      path: '/loyalty'
+      fullPath: '/loyalty'
+      preLoaderRoute: typeof LoyaltyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -465,8 +505,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   BookingsRoute: BookingsRouteWithChildren,
   LoginRoute: LoginRoute,
+  LoyaltyRoute: LoyaltyRoute,
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
+  WatchlistRoute: WatchlistRoute,
   BookingShowtimeIdRoute: BookingShowtimeIdRoute,
   MoviesIdRoute: MoviesIdRoute,
   MoviesIndexRoute: MoviesIndexRoute,
