@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.controller;
 
+import com.movie_reservation.MovieReservationSystem.dto.request.UpdateProfileRequest;
 import com.movie_reservation.MovieReservationSystem.dto.request.UserRoleRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ApiResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
@@ -26,6 +27,14 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails) {
         UserResponse response = userService.getProfile(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        UserResponse response = userService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Profile updated successfully"));
     }
 
     @GetMapping

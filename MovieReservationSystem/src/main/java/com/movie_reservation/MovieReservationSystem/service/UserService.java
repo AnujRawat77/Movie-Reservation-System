@@ -1,5 +1,6 @@
 package com.movie_reservation.MovieReservationSystem.service;
 
+import com.movie_reservation.MovieReservationSystem.dto.request.UpdateProfileRequest;
 import com.movie_reservation.MovieReservationSystem.dto.response.ReservationResponse;
 import com.movie_reservation.MovieReservationSystem.dto.response.UserResponse;
 import com.movie_reservation.MovieReservationSystem.entity.User;
@@ -62,11 +63,28 @@ public class UserService {
         return toResponse(user);
     }
 
+    public UserResponse updateProfile(String email, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (request.getName() != null) user.setName(request.getName());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+        if (request.getAddress() != null) user.setAddress(request.getAddress());
+        if (request.getProfilePictureUrl() != null) user.setProfilePictureUrl(request.getProfilePictureUrl());
+
+        user = userRepository.save(user);
+        return toResponse(user);
+    }
+
     private UserResponse toResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .loyaltyPoints(user.getLoyaltyPoints())
                 .role(user.getRole())
                 .active(user.getActive())
                 .createdAt(user.getCreatedAt())

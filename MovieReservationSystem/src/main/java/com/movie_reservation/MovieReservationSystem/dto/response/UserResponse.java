@@ -16,6 +16,10 @@ public class UserResponse {
     private Long id;
     private String name;
     private String email;
+    private String phone;
+    private String address;
+    private String profilePictureUrl;
+    private Integer loyaltyPoints;
     private String role;
     private Boolean active;
     private LocalDateTime createdAt;

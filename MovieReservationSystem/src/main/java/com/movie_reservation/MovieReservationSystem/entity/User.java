@@ -32,6 +32,16 @@ public class User {
     @Builder.Default
     private String role = "USER";
 
+    private String phone;
+
+    private String address;
+
+    private String profilePictureUrl;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer loyaltyPoints = 0;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean active = true;
