@@ -86,9 +86,6 @@ function LoginPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               Welcome back to the show
             </p>
-            <p className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground/70">
-              Try: admin@cinereserve.com / Admin@123
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

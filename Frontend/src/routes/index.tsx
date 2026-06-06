@@ -115,10 +115,10 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-border bg-border md:grid-cols-4">
           {[
-            { v: "120+", l: STRINGS.home.stats.movies },
-            { v: "12", l: STRINGS.home.stats.halls },
-            { v: "850K", l: STRINGS.home.stats.guests },
-            { v: "4.9", l: STRINGS.home.stats.rating },
+            { v: "48+", l: STRINGS.home.stats.movies },
+            { v: "8", l: STRINGS.home.stats.halls },
+            { v: "5K", l: STRINGS.home.stats.guests },
+            { v: "4.5", l: STRINGS.home.stats.rating },
           ].map((s, i) => (
             <motion.div
               key={s.l}
